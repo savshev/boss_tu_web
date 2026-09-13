@@ -34,12 +34,15 @@ class AuthController extends Controller
         $login = trim($request->input('login'));
         $password = $request->input('password');
 
-        // 2. ЭТАП 1: Выделяем последние 3 символа логина (XXX) для формирования имени базы
+        // 2. ЭТАП 1: Извлекаем последние 3 символа логина (XXX) и формируем имя базы
         $dbCode = substr($login, -3);
         $targetDatabase = "dataBase_tu_" . $dbCode;
 
-        // Проверяем существование этой базы данных на сервере MySQL
-        $hasDatabase = DB::select("SHOW DATABASES LIKE ?", [$targetDatabase]);
+        // Проверяем существование этой базы данных через information_schema
+        $hasDatabase = DB::select(
+            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
+            [$targetDatabase]
+        );
 
         if (empty($hasDatabase)) {
             return back()->withErrors(['login' => "База данных '{$targetDatabase}' не найдена на сервере."])->withInput();
