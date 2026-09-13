@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Database\QueryException;
 
 class AuthController extends Controller
 {
@@ -38,23 +39,28 @@ class AuthController extends Controller
         $dbCode = substr($login, -3);
         $targetDatabase = "dataBase_tu_" . $dbCode;
 
-        // Проверяем существование этой базы данных через information_schema
-        $hasDatabase = DB::select(
-            "SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?",
-            [$targetDatabase]
-        );
+        // Пытаемся проверить существование базы данных через Конструктор Запросов
+        try {
+            $hasDatabase = DB::table('information_schema.SCHEMATA')
+                ->where('SCHEMA_NAME', $targetDatabase)
+                ->exists();
+        } catch (\Exception $e) {
+            // Фолбэк: если запрос к information_schema запрещен, считаем true и проверяем при прямом подключении
+            $hasDatabase = true;
+        }
 
-        if (empty($hasDatabase)) {
+        if (!$hasDatabase) {
             return back()->withErrors(['login' => "База данных '{$targetDatabase}' не найдена на сервере."])->withInput();
         }
 
-        // 3. Динамически переключаем конфигурацию соединения Laravel на найденную базу
+        // 3. Динамически переключаем конфигурацию соединения Laravel на целевую базу
         Config::set('database.connections.mysql.database', $targetDatabase);
         DB::purge('mysql');
-        DB::reconnect('mysql');
 
-        // 4. ЭТАП 2: Ищем строку с паролем в таблице SQL_COMM целевой базы
+        // 4. ЭТАП 2: Подключаемся и ищем строку с паролем в таблице SQL_COMM целевой базы
         try {
+            DB::reconnect('mysql');
+
             $userRecord = DB::table('SQL_COMM')
                 ->where('ALIAS', 'USER_INFO')
                 ->where('STRING', $password)
@@ -75,8 +81,11 @@ class AuthController extends Controller
             // Перенаправляем на главную страницу приложения
             return redirect()->route('main');
 
+        } catch (QueryException $e) {
+            // Если переключение на базу не удалось (базы физически нет или ошибка таблицы)
+            return back()->withErrors(['login' => "Не удалось подключиться к базе '{$targetDatabase}' или таблице SQL_COMM."])->withInput();
         } catch (\Exception $e) {
-            return back()->withErrors(['login' => 'Ошибка при обращении к таблице SQL_COMM: ' . $e->getMessage()])->withInput();
+            return back()->withErrors(['login' => 'Ошибка авторизации: ' . $e->getMessage()])->withInput();
         }
     }
 
