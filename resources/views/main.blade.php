@@ -21,22 +21,21 @@
 </head>
 <body>
 <div class="card">
-    <!-- Оновлений заголовок -->
     <h2>Перегляд даних ППО</h2>
 
-    <!-- 1. Ім'я користувача -->
+    <!-- 1. Ім'я користувача (SQL_COMM.INFO) -->
     <div class="param-group">
         <div class="param-label">Користувач:</div>
         <div class="param-value">{{ $userName }}</div>
     </div>
 
-    <!-- 2. Найменування підприємства (OWNER) -->
+    <!-- 2. Підприємство (SQL_COMM.INFO для OWNER) -->
     <div class="param-group">
         <div class="param-label">Підприємство:</div>
         <div class="param-value">{{ $ownerName }}</div>
     </div>
 
-    <!-- 3. Дата збору даних (DATE_DATA) -->
+    <!-- 3. Дата збору даних (SQL_COMM.INFO для DATE_DATA) -->
     <div class="param-group">
         <div class="param-label">Дата збору даних:</div>
         <div class="param-value">{{ $dateData }}</div>
