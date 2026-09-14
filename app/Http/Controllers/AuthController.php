@@ -62,12 +62,12 @@ class AuthController extends Controller
             DB::reconnect('mysql');
 
             $userRecord = DB::table('SQL_COMM')
-                ->where('ALIAS', 'USER_INFO')
+                ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['user_info'])
                 ->where('STRING', $password)
                 ->first();
 
             if (!$userRecord) {
-                return back()->withErrors(['password' => 'Неверный пароль.'])->withInput();
+                return back()->withErrors(['password' => 'Невірний пароль.'])->withInput();
             }
 
             // 5. УСПЕХ: Сохраняем авторизацию и имя пользователя (из поля INFO) в сессию
@@ -75,7 +75,7 @@ class AuthController extends Controller
                 'is_logged_in' => true,
                 'db_code' => $dbCode,
                 'db_name' => $targetDatabase,
-                'user_info' => $userRecord->INFO ?? 'Пользователь',
+                'user_info' => $userRecord->INFO ?? 'Користувач',
             ]);
 
             // Перенаправляем на главную страницу приложения

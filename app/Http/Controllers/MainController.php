@@ -8,23 +8,27 @@ use Illuminate\Support\Facades\DB;
 class MainController extends Controller
 {
     /**
-     * Відображає головну сторінку з параметрами з таблиці SQL_COMM (з поля INFO).
+     * Відображає головну сторінку з параметрами з таблиці SQL_COMM.
+     *
+     * Користувач: з поля INFO (з сесії)
+     * Підприємство: з поля STRING (де ALIAS = 'OWNER')
+     * Дата збору даних: з поля STRING (де ALIAS = 'DATE_DATA')
      */
     public function index()
     {
-        // 1. Отримуємо дату збору даних (ALIAS = 'DATE_DATA', беремо поле INFO)
+        // 1. Отримуємо дату збору даних (ALIAS = 'DATE_DATA')
         $dateRecord = DB::table('SQL_COMM')
-            ->where('ALIAS', 'DATE_DATA')
+            ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['date_data'])
             ->first();
 
-        // 2. Отримуємо найменування підприємства (ALIAS = 'OWNER', беремо поле INFO)
+        // 2. Отримуємо найменування підприємства (ALIAS = 'OWNER')
         $ownerRecord = DB::table('SQL_COMM')
-            ->where('ALIAS', 'OWNER')
+            ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['owner'])
             ->first();
 
-        // 3. Формуємо значення для передачі у шаблон Blade
-        $dateData = $dateRecord->INFO ?? 'Не вказано';
-        $ownerName = $ownerRecord->INFO ?? 'Не вказано';
+        // 3. Зчитуємо поле STRING для дати та підприємства, а для користувача — INFO з сесії
+        $dateData = $dateRecord->STRING ?? 'Дані відсутні';
+        $ownerName = $ownerRecord->STRING ?? 'Дані відсутні';
         $userName = session('user_info', 'Користувач');
 
         return view('main', compact('dateData', 'ownerName', 'userName'));
