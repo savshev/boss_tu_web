@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Главная | boss_tu_web</title>
+    <title>Головна | boss_tu_web</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #ffffff; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 450px; }
@@ -23,31 +23,31 @@
 <div class="card">
     <h2>boss_tu_web</h2>
 
-    <!-- 1. Имя пользователя -->
+    <!-- 1. Ім'я користувача -->
     <div class="param-group">
-        <div class="param-label">Пользователь:</div>
+        <div class="param-label">Користувач:</div>
         <div class="param-value">{{ $userName }}</div>
     </div>
 
-    <!-- 2. Наименование организации (OWNER) -->
+    <!-- 2. Найменування підприємства (OWNER) -->
     <div class="param-group">
-        <div class="param-label">Организация:</div>
+        <div class="param-label">Підприємство:</div>
         <div class="param-value">{{ $ownerName }}</div>
     </div>
 
-    <!-- 3. Дата сбора данных (DATE_DATA) -->
+    <!-- 3. Дата збору даних (DATE_DATA) -->
     <div class="param-group">
-        <div class="param-label">Дата сбора данных:</div>
+        <div class="param-label">Дата збору даних:</div>
         <div class="param-value">{{ $dateData }}</div>
     </div>
 
-    <!-- Кнопки управления -->
+    <!-- Кнопки управління -->
     <div class="buttons-container">
-        <a href="{{ route('main.next') }}" class="btn btn-next">Смотрим дальше</a>
+        <a href="{{ route('main.next') }}" class="btn btn-next">Переглянути</a>
 
         <form action="{{ route('logout') }}" method="POST" style="flex: 1; margin: 0;">
             @csrf
-            <button type="submit" class="btn btn-logout" style="width: 100%;">Выход</button>
+            <button type="submit" class="btn btn-logout" style="width: 100%;">Вихід</button>
         </form>
     </div>
 </div>
