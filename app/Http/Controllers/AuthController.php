@@ -79,11 +79,16 @@ class AuthController extends Controller
     }
 
     /**
-     * Завершує сесію користувача.
+     * Завершує сесію користувача та негайно закриває вкладку браузера.
      */
     public function logout(Request $request)
     {
+        // 1. Повністю очищаємо та анулюємо сесію користувача на сервері
         $request->session()->flush();
-        return redirect()->route('login');
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
+
+        // 2. Повертаємо мінімальний HTML-скрипт, який одразу закриває вкладку
+        return response('<script>window.open("", "_self", ""); window.close();</script>');
     }
 }
