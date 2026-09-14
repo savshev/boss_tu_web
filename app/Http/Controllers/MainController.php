@@ -9,10 +9,6 @@ class MainController extends Controller
 {
     /**
      * Відображає головну сторінку з параметрами з таблиці SQL_COMM.
-     *
-     * Користувач: з поля INFO (з сесії)
-     * Підприємство: з поля STRING (де ALIAS = 'OWNER')
-     * Дата збору даних: з поля STRING (де ALIAS = 'DATE_DATA')
      */
     public function index()
     {
@@ -26,19 +22,25 @@ class MainController extends Controller
             ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['owner'])
             ->first();
 
-        // 3. Зчитуємо поле STRING для дати та підприємства, а для користувача — INFO з сесії
-        $dateData = $dateRecord->STRING ?? 'Дані відсутні';
-        $ownerName = $ownerRecord->STRING ?? 'Дані відсутні';
+        // Допоміжна функція для зчитування поля STRING
+        $getString = function ($record) {
+            if (!$record) return null;
+            $array = (array) $record;
+            return $array['STRING'] ?? $array['string'] ?? null;
+        };
+
+        $dateData = $getString($dateRecord) ?? 'Дані відсутні';
+        $ownerName = $getString($ownerRecord) ?? 'Дані відсутні';
         $userName = session('user_info', 'Користувач');
 
         return view('main', compact('dateData', 'ownerName', 'userName'));
     }
 
     /**
-     * Заглушка для кнопки "Переглянути".
+     * Відображає форму з 9 кнопками розділів ППО (відкривається за кнопкою "Переглянути").
      */
-    public function nextStep()
+    public function menu()
     {
-        return response("Розділ знаходиться в розробці.", 200);
+        return view('menu');
     }
 }
