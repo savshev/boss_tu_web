@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Головна | boss_tu_web</title>
+    <title>Перегляд даних ППО | boss_tu_web</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
         .card { background: #ffffff; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 450px; }
-        h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; }
+        h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
         .param-group { margin-bottom: 18px; background: #f8f9fa; padding: 12px 15px; border-radius: 6px; border-left: 4px solid #007bff; }
         .param-label { font-size: 13px; color: #6c757d; font-weight: bold; text-transform: uppercase; margin-bottom: 4px; }
         .param-value { font-size: 16px; color: #212529; font-weight: 600; }
@@ -21,7 +21,8 @@
 </head>
 <body>
 <div class="card">
-    <h2>boss_tu_web</h2>
+    <!-- Оновлений заголовок -->
+    <h2>Перегляд даних ППО</h2>
 
     <!-- 1. Ім'я користувача -->
     <div class="param-group">
