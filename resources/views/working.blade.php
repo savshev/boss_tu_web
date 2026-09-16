@@ -9,7 +9,7 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Главная кнопка "Працюючих всього" */
+        /* Головна кнопка "Працюючих всього" */
         .header-stat-btn {
             background-color: #f8f9fa;
             color: #007bff;
@@ -23,11 +23,11 @@
             margin-bottom: 15px;
             text-decoration: none;
             transition: all 0.15s ease-in-out;
-            outline: none;
+            outline: none !important; /* Прибираємо системну пунктирну рамку */
             cursor: pointer;
         }
 
-        /* 15 кнопок показателей */
+        /* 15 кнопок показників */
         .stats-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
         .stat-btn {
             display: flex;
@@ -41,7 +41,7 @@
             font-size: 15px;
             text-decoration: none;
             transition: all 0.15s ease-in-out;
-            outline: none;
+            outline: none !important; /* Прибираємо системну пунктирну рамку */
             cursor: pointer;
         }
 
@@ -50,14 +50,19 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ОБЩИЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ (И ПОДСВЕТКА, И ФОКУС) */
-        .interactive-btn.active, .interactive-btn:focus {
+        /* ЄДИНИЙ СТИЛЬ ДЛЯ АКТИВНОСТІ ТА ФОКУСУ (СИНЄ ПІДСВІЧУВАННЯ) */
+        .interactive-btn.active,
+        .interactive-btn:focus,
+        .interactive-btn:focus-visible {
             background-color: #007bff !important;
             color: #ffffff !important;
             border-color: #0056b3 !important;
-            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.3);
+            box-shadow: 0 4px 10px rgba(0, 123, 255, 0.35) !important;
+            outline: none !important;
         }
-        .interactive-btn.active .stat-percent, .interactive-btn:focus .stat-percent {
+
+        .interactive-btn.active .stat-percent,
+        .interactive-btn:focus .stat-percent {
             color: #ffffff !important;
         }
 
@@ -69,13 +74,13 @@
 <div class="card">
     <h2>Працюючі</h2>
 
-    <!-- Первая кнопка "Працюючих всього" -->
+    <!-- Перша кнопка "Працюючих всього" -->
     <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn interactive-btn" tabindex="0">
         <span>Працюючих всього</span>
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
     </a>
 
-    <!-- 15 кнопок показателей -->
+    <!-- 15 кнопок показників -->
     <div class="stats-list">
         @foreach($stats as $alias => $item)
             <a href="{{ route('working.list', ['category' => $alias]) }}" class="stat-btn interactive-btn" tabindex="0">
@@ -93,10 +98,10 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const buttons = document.querySelectorAll('.interactive-btn');
+        const buttons = Array.from(document.querySelectorAll('.interactive-btn'));
         if (buttons.length === 0) return;
 
-        // Зчитуємо збережений індекс кнопки з сесії браузера (якщо повертаємося зі списку)
+        // Отримуємо збережений індекс з сесії
         let savedIndex = sessionStorage.getItem('active_working_btn_index');
         let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
@@ -104,56 +109,60 @@
             currentIndex = 0;
         }
 
-        // Функція для переміщення фокусу та підсвічування
-        function setActiveButton(index) {
+        // Функція для примусового перенесення фокусу та підсвічування
+        function applyFocus(index) {
             if (index < 0 || index >= buttons.length) return;
 
-            buttons.forEach(btn => btn.classList.remove('active'));
-
             currentIndex = index;
-            const activeBtn = buttons[currentIndex];
-            activeBtn.classList.add('active');
-
-            // Зберігаємо поточний індекс у сесії браузера
             sessionStorage.setItem('active_working_btn_index', currentIndex);
 
-            // Передаємо СПРАВЖНІЙ системний фокус браузера
-            activeBtn.focus();
+            buttons.forEach((btn, i) => {
+                if (i === currentIndex) {
+                    btn.classList.add('active');
+                    btn.focus(); // Фізично переносимо системний фокус
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
         }
 
-        // Початкова активація (збереженої або першої кнопки)
-        setActiveButton(currentIndex);
+        // Активація при завантаженні сторінки
+        requestAnimationFrame(() => {
+            applyFocus(currentIndex);
+        });
 
-        // Обробники для миші
+        // Обробники подій для кожної кнопки
         buttons.forEach((btn, index) => {
+            // При наведенні мишею переносимо фокус
             btn.addEventListener('mouseenter', function () {
-                setActiveButton(index);
+                applyFocus(index);
             });
 
+            // При кліку зберігаємо стан
             btn.addEventListener('click', function () {
                 sessionStorage.setItem('active_working_btn_index', index);
             });
 
+            // При фокусі через Tab
             btn.addEventListener('focus', function () {
-                buttons.forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                currentIndex = index;
-                sessionStorage.setItem('active_working_btn_index', index);
+                if (currentIndex !== index) {
+                    applyFocus(index);
+                }
             });
         });
 
-        // Навігація клавішами Стрілка Вгору / Вниз
+        // Навігація Стрілками Вгору / Вниз
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 let nextIndex = currentIndex + 1;
                 if (nextIndex >= buttons.length) nextIndex = 0; // закольцовываем
-                setActiveButton(nextIndex);
+                applyFocus(nextIndex);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 let prevIndex = currentIndex - 1;
                 if (prevIndex < 0) prevIndex = buttons.length - 1; // закольцовываем
-                setActiveButton(prevIndex);
+                applyFocus(prevIndex);
             }
         });
     });
