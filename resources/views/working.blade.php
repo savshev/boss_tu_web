@@ -50,7 +50,7 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ОБЩИЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ (ВЫДЕЛЕНИЕ) */
+        /* ОБЩИЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ (И ПОДСВЕТКА, И ФОКУС) */
         .interactive-btn.active, .interactive-btn:focus {
             background-color: #007bff !important;
             color: #ffffff !important;
@@ -69,8 +69,8 @@
 <div class="card">
     <h2>Працюючі</h2>
 
-    <!-- Первая кнопка "Працюючих всього" (подсвечена изначально) -->
-    <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn interactive-btn active" tabindex="0">
+    <!-- Первая кнопка "Працюючих всього" -->
+    <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn interactive-btn" tabindex="0">
         <span>Працюючих всього</span>
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
     </a>
@@ -93,13 +93,18 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        // Получаем все интерактивные кнопки (первую + 15 остальных)
         const buttons = document.querySelectorAll('.interactive-btn');
         if (buttons.length === 0) return;
 
-        let currentIndex = 0;
+        // Зчитуємо збережений індекс кнопки з сесії браузера (якщо повертаємося зі списку)
+        let savedIndex = sessionStorage.getItem('active_working_btn_index');
+        let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
-        // Установка фокуса и подсветки на кнопку по индексу
+        if (isNaN(currentIndex) || currentIndex < 0 || currentIndex >= buttons.length) {
+            currentIndex = 0;
+        }
+
+        // Функція для переміщення фокусу та підсвічування
         function setActiveButton(index) {
             if (index < 0 || index >= buttons.length) return;
 
@@ -108,33 +113,47 @@
             currentIndex = index;
             const activeBtn = buttons[currentIndex];
             activeBtn.classList.add('active');
+
+            // Зберігаємо поточний індекс у сесії браузера
+            sessionStorage.setItem('active_working_btn_index', currentIndex);
+
+            // Передаємо СПРАВЖНІЙ системний фокус браузера
             activeBtn.focus();
         }
 
-        // Клик мышкой по любой кнопке
-        buttons.forEach((btn, index) => {
-            btn.addEventListener('click', function () {
-                setActiveButton(index);
-            });
+        // Початкова активація (збереженої або першої кнопки)
+        setActiveButton(currentIndex);
 
-            // Наведение мыши переносит выделение
+        // Обробники для миші
+        buttons.forEach((btn, index) => {
             btn.addEventListener('mouseenter', function () {
                 setActiveButton(index);
             });
+
+            btn.addEventListener('click', function () {
+                sessionStorage.setItem('active_working_btn_index', index);
+            });
+
+            btn.addEventListener('focus', function () {
+                buttons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentIndex = index;
+                sessionStorage.setItem('active_working_btn_index', index);
+            });
         });
 
-        // Навигация стрелками Вверх и Вниз
+        // Навігація клавішами Стрілка Вгору / Вниз
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < buttons.length - 1) {
-                    setActiveButton(currentIndex + 1);
-                }
+                let nextIndex = currentIndex + 1;
+                if (nextIndex >= buttons.length) nextIndex = 0; // закольцовываем
+                setActiveButton(nextIndex);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (currentIndex > 0) {
-                    setActiveButton(currentIndex - 1);
-                }
+                let prevIndex = currentIndex - 1;
+                if (prevIndex < 0) prevIndex = buttons.length - 1; // закольцовываем
+                setActiveButton(prevIndex);
             }
         });
     });
