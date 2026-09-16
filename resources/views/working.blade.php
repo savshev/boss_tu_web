@@ -9,7 +9,21 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Главная кнопка "Працюючих всього" */
+        /* Базові стилі для всіх інтерактивних кнопок */
+        .interactive-btn {
+            text-decoration: none;
+            transition: all 0.15s ease-in-out;
+            outline: none !important; /* Прибираємо браузерний прямокутник */
+            box-shadow: none !important;
+            cursor: pointer;
+        }
+        .interactive-btn:focus,
+        .interactive-btn:focus-visible {
+            outline: none !important; /* Гарантовано вимикаємо браузерний outline */
+            box-shadow: none !important;
+        }
+
+        /* Головна кнопка "Працюючих всього" */
         .header-stat-btn {
             background-color: #f8f9fa;
             color: #007bff;
@@ -21,13 +35,9 @@
             display: flex;
             justify-content: space-between;
             margin-bottom: 15px;
-            text-decoration: none;
-            transition: all 0.15s ease-in-out;
-            outline: none !important;
-            cursor: pointer;
         }
 
-        /* 15 кнопок показателей */
+        /* 15 кнопок показників */
         .stats-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
         .stat-btn {
             display: flex;
@@ -39,10 +49,6 @@
             border: 1px solid #ced4da;
             border-radius: 6px;
             font-size: 15px;
-            text-decoration: none;
-            transition: all 0.15s ease-in-out;
-            outline: none !important;
-            cursor: pointer;
         }
 
         .stat-label { font-weight: 600; flex: 1; }
@@ -50,20 +56,14 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ЕДИНЫЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ И СИСТЕМНОГО ФОКУСА */
-        .interactive-btn.active,
-        .interactive-btn:focus,
-        .interactive-btn:focus-visible {
+        /* ЕДИНЫЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ (ПІДСВІЧУВАННЯ ТА РАМКА) */
+        .interactive-btn.active {
             background-color: #007bff !important;
             color: #ffffff !important;
             border-color: #0056b3 !important;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.35) !important;
-            outline: 2px solid #0056b3 !important;
-            outline-offset: 1px;
         }
-
-        .interactive-btn.active .stat-percent,
-        .interactive-btn:focus .stat-percent {
+        .interactive-btn.active .stat-percent {
             color: #ffffff !important;
         }
 
@@ -75,13 +75,13 @@
 <div class="card">
     <h2>Працюючі</h2>
 
-    <!-- Первая кнопка "Працюючих всього" -->
+    <!-- Перша кнопка "Працюючих всього" -->
     <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn interactive-btn" tabindex="0">
         <span>Працюючих всього</span>
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
     </a>
 
-    <!-- 15 кнопок показателей -->
+    <!-- 15 кнопок показників -->
     <div class="stats-list">
         @foreach($stats as $alias => $item)
             <a href="{{ route('working.list', ['category' => $alias]) }}" class="stat-btn interactive-btn" tabindex="0">
@@ -102,9 +102,9 @@
         const buttons = Array.from(document.querySelectorAll('.interactive-btn'));
         if (buttons.length === 0) return;
 
-        let isInitialLoad = true; // Защита от авто-перехвата мышью при старте
+        let isInitialLoad = true;
 
-        // Считываем сохраненный индекс из сессии
+        // Зчитуємо збережений індекс із сесії
         let savedIndex = sessionStorage.getItem('active_working_btn_index');
         let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
@@ -112,34 +112,36 @@
             currentIndex = 0;
         }
 
-        // Функция для точной установки фокуса и подсветки
+        // Функція для точної зміни активної кнопки без артефактів outline
         function applyFocus(index) {
             if (index < 0 || index >= buttons.length) return;
 
             currentIndex = index;
             sessionStorage.setItem('active_working_btn_index', currentIndex);
 
+            // Скидаємо системний фокус браузера з поточного активного елемента
+            if (document.activeElement && typeof document.activeElement.blur === 'function') {
+                document.activeElement.blur();
+            }
+
             buttons.forEach((btn, i) => {
                 if (i === currentIndex) {
                     btn.classList.add('active');
-                    btn.focus(); // Системно переносим фокус
+                    btn.focus(); // Призначимо системний фокус актуальній кнопці
                 } else {
                     btn.classList.remove('active');
-                    btn.blur(); // Снимаем фокус с остальных
                 }
             });
         }
 
-        // Устанавливаем фокус при загрузке страницы
+        // Запускаємо виділення при завантаженні
         setTimeout(() => {
             applyFocus(currentIndex);
-            // Снимаем блокировку мыши через 300 мс после старта
             setTimeout(() => { isInitialLoad = false; }, 300);
         }, 50);
 
-        // Обработчики событий
+        // Обробники подій
         buttons.forEach((btn, index) => {
-            // Мышь меняет фокус только после завершения первой загрузки
             btn.addEventListener('mouseenter', function () {
                 if (!isInitialLoad) {
                     applyFocus(index);
@@ -157,7 +159,7 @@
             });
         });
 
-        // Навигация стрелками Вверх / Вниз
+        // Навігація клавішами Стрілка Вгору / Вниз
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
