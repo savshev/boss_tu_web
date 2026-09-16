@@ -108,6 +108,7 @@ class MainController extends Controller
     {
         // Назви категорій для заголовка сторінки
         $categoryTitles = [
+            'CNTENT_ALL'  => 'Список усіх працюючих',
             'CNTENT_MEN'  => 'Список працюючих: Чоловіки',
             'CNTENT_WOM'  => 'Список працюючих: Жінки',
             'COUNT_TOUR'  => 'Працівники, які отримали путівки',
@@ -117,8 +118,8 @@ class MainController extends Controller
             'COUNT_25'    => 'Працівники віком 20 - 25 років',
             'COUNT_30'    => 'Працівники віком 25 - 30 років',
             'COUNT_35'    => 'Працівники віком 30 - 35 років',
-            'COUNT_40'    => 'Працівники віком 35 - 40 років',
-            'COUNT_45'    => 'Працівники віком 40 - 45 років',
+            'COUNT_40'    => 'Працівники віком 40 - 45 років',
+            'COUNT_45'    => 'Працівники віком 45 - 50 років',
             'COUNT_50'    => 'Працівники віком 45 - 50 років',
             'COUNT_55'    => 'Працівники віком 50 - 55 років',
             'COUNT_60'    => 'Працівники віком 55 - 60 років',
@@ -127,30 +128,19 @@ class MainController extends Controller
 
         $title = $categoryTitles[$category] ?? 'Список працюючих';
 
-        // Базовий запит до SQL_LALL
+        // Базовий запит до SQL_LALL (працюючі)
         $query = DB::table('SQL_LALL')
             ->where('PREV', 0)
             ->where('DEPARTMN', '>', 0);
 
-        // Фільтрація залежно від обраної категорії
+        // Фільтрація за категорією
         switch ($category) {
-            case 'CNTENT_MEN':
-                $query->where('SEX', 1);
-                break;
-            case 'CNTENT_WOM':
-                $query->where('SEX', 2);
-                break;
-            case 'COUNT_TOUR':
-                $query->where('SUMTOU_ALL', '>', 0);
-                break;
-            case 'COUNT_FINH':
-                $query->where('SUM_FINHLP', '>', 0);
-                break;
-            case 'COUNT_KRED':
-                $query->where('SUM_KREDIT', '>', 0);
-                break;
+            case 'CNTENT_MEN':  $query->where('SEX', 1); break;
+            case 'CNTENT_WOM':  $query->where('SEX', 2); break;
+            case 'COUNT_TOUR':  $query->where('SUMTOU_ALL', '>', 0); break;
+            case 'COUNT_FINH':  $query->where('SUM_FINHLP', '>', 0); break;
+            case 'COUNT_KRED':  $query->where('SUM_KREDIT', '>', 0); break;
 
-            // Вікові категорії (перевіряємо поле COUNT_AGE)
             case 'COUNT_20':  $query->where('COUNT_AGE', 20); break;
             case 'COUNT_25':  $query->where('COUNT_AGE', 25); break;
             case 'COUNT_30':  $query->where('COUNT_AGE', 30); break;
@@ -161,9 +151,10 @@ class MainController extends Controller
             case 'COUNT_55':  $query->where('COUNT_AGE', 55); break;
             case 'COUNT_60':  $query->where('COUNT_AGE', 60); break;
             case 'COUNT_100': $query->where('COUNT_AGE', 100); break;
+            // для CNTENT_ALL додаткова фільтрація не потрібна
         }
 
-        // Отримуємо список людей з посторінковим виводом (50 осіб на сторінку)
+        // Отримуємо по 50 записів на сторінку
         $people = $query->paginate(50);
 
         return view('working_list', compact('people', 'title', 'category'));

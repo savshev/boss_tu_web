@@ -34,17 +34,31 @@
 
         .btn-back { display: block; width: 100%; padding: 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-back:hover { background-color: #5a6268; }
+        .header-stat-btn {
+            background-color: #007bff;
+            color: white;
+            padding: 12px 18px;
+            border-radius: 6px;
+            font-weight: bold;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            text-decoration: none;
+            transition: background-color 0.2s ease;
+        }
+        .header-stat-btn:hover { background-color: #0056b3; }
     </style>
 </head>
 <body>
 <div class="card">
     <h2>Працюючі</h2>
 
-    <!-- Загальна кількість працюючих -->
-    <div class="header-stat">
+    <!-- Загальна кількість працюючих (тепер клікабельна кнопка) -->
+    <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn">
         <span>Працюючих всього</span>
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
-    </div>
+    </a>
 
     <!-- 15 кнопок показників з посиланням на список -->
     <div class="stats-list">
