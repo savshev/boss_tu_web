@@ -9,7 +9,6 @@
         .card { background: #ffffff; padding: 35px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 550px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Сітка для 9 кнопок */
         .menu-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-bottom: 25px; }
         @media (min-width: 480px) {
             .menu-grid { grid-template-columns: 1fr 1fr; }
@@ -42,13 +41,13 @@
     <h2>Оберіть розділ ППО</h2>
 
     <div class="menu-grid">
-        <a href="#" class="menu-btn">Загальні дані</a>
+        <!-- 8 нових розділів -->
+        <a href="{{ route('working') }}" class="menu-btn">Працюючі</a>
+        <a href="#" class="menu-btn">Ветерани</a>
         <a href="#" class="menu-btn">Підрозділи</a>
-        <a href="#" class="menu-btn">Список працюючих</a>
-        <a href="#" class="menu-btn">Список ветеранів</a>
-        <a href="#" class="menu-btn">Знайти члена профспілки</a>
-        <a href="#" class="menu-btn">Зведені дані за роками</a>
-        <a href="#" class="menu-btn">Подробиці про путівки</a>
+        <a href="#" class="menu-btn">Путівки</a>
+        <a href="#" class="menu-btn">Фіндопомога</a>
+        <a href="#" class="menu-btn">Позички</a>
         <a href="#" class="menu-btn">Чисельність та внески</a>
         <a href="#" class="menu-btn">Доходи та витрати</a>
     </div>

@@ -43,4 +43,12 @@ class MainController extends Controller
     {
         return view('menu');
     }
+
+    /**
+     * Відображає розділ "Працюючі".
+     */
+    public function working()
+    {
+        return view('working');
+    }
 }
