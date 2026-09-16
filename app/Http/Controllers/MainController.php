@@ -45,11 +45,11 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає сторінку "Працюючі" з кнопками-показниками з таблиці SQL_COMM.
+     * Відображає сторінку "Працюючі" з реальними показниками з таблиці SQL_COMM.
      */
     public function working()
     {
-        // Допоміжна функція для отримання числового значення з поля STRING за ALIAS
+        // Допоміжна функція для зчитування числового значення з поля STRING за ALIAS
         $getValueByAlias = function ($alias) {
             $record = DB::table('SQL_COMM')
                 ->whereRaw("LOWER(TRIM(ALIAS)) = ?", [strtolower(trim($alias))])
@@ -58,42 +58,43 @@ class MainController extends Controller
             if (!$record) return 0;
             $array = (array) $record;
             $val = $array['STRING'] ?? $array['string'] ?? '0';
+            // Залишаємо тільки цифри
             return (int) preg_replace('/[^0-9]/', '', $val);
         };
 
-        // 1. Загальна кількість працюючих (базове число для відсотків)
-        // Примітка: замініть 'WORK_TOTAL' на точний ALIAS із вашої БД
-        $totalWorking = $getValueByAlias('WORK_TOTAL');
-        if ($totalWorking <= 0) $totalWorking = 1; // Запобігання діленню на 0
+        // 1. Всього працюючих (CNTENT_ALL)
+        $totalWorking = $getValueByAlias('CNTENT_ALL');
+        $baseTotal = $totalWorking > 0 ? $totalWorking : 1; // Запобігання діленню на 0
 
-        // 2. Список усіх 15 показників (ALIAS => Назва)
-        // ЗАМІНІТЬ ключі ALIAS на точні назви з вашої таблиці SQL_COMM!
+        // 2. Список 15 показників: ALIAS => Українська назва
         $itemsConfig = [
-            'WORK_MALE'      => 'чоловіків',
-            'WORK_FEMALE'    => 'жінок',
-            'HELP_VOUCHER'   => 'Отримали путівки',
-            'HELP_FIN'       => 'фіндопомогу',
-            'HELP_LOAN'      => 'позички',
-            'AGE_UNDER_20'   => 'Віком: до 20 років',
-            'AGE_20_25'      => '20 - 25 років',
-            'AGE_25_30'      => '25 - 30 років',
-            'AGE_30_35'      => '30 - 35 років',
-            'AGE_35_40'      => '35 - 40 років',
-            'AGE_40_45'      => '40 - 45 років',
-            'AGE_45_50'      => '45 - 50 років',
-            'AGE_50_55'      => '50 - 55 років',
-            'AGE_55_60'      => '55 - 60 років',
-            'AGE_OVER_60'    => 'понад 60 років',
+            'CNTENT_MEN'  => 'чоловіків',
+            'CNTENT_WOM'  => 'жінок',
+            'COUNT_TOUR'  => 'Отримали путівки',
+            'COUNT_FINH'  => 'фіндопомогу',
+            'COUNT_KRED'  => 'позички',
+            'COUNT_20'    => 'Віком: до 20 років',
+            'COUNT_25'    => '20 - 25 років',
+            'COUNT_30'    => '25 - 30 років',
+            'COUNT_35'    => '30 - 35 років',
+            'COUNT_40'    => '35 - 40 років',
+            'COUNT_45'    => '40 - 45 років',
+            'COUNT_50'    => '45 - 50 років',
+            'COUNT_55'    => '50 - 55 років',
+            'COUNT_60'    => '55 - 60 років',
+            'COUNT_100'   => 'понад 60 років',
         ];
 
+        // 3. Формуємо масив з розрахованими відсотками
         $stats = [];
         foreach ($itemsConfig as $alias => $label) {
             $count = $getValueByAlias($alias);
-            $percent = round(($count / $totalWorking) * 100, 1);
+            $percent = round(($count / $baseTotal) * 100, 1);
+
             $stats[$alias] = [
-                'label' => $label,
-                'count' => $count,
-                'percent' => number_format($percent, 1, '.', '') . '%'
+                'label'   => $label,
+                'count'   => $count,
+                'percent' => number_format($percent, 1, '.', '') . '%',
             ];
         }
 
