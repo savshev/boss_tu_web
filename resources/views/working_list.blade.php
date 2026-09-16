@@ -23,30 +23,22 @@
 
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
-        /* Основний список людей з авто-скролінгом займає весь вільний простір */
+        /* Список людей з авто-скролінгом займає весь доступний простір */
         .people-list {
             flex: 1 1 auto;
             overflow-y: auto;
             padding-right: 8px;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
         }
 
         .person-item { background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px; padding: 10px 12px; margin-bottom: 10px; font-family: 'Courier New', monospace, sans-serif; font-size: 14px; line-height: 1.4; }
 
-        /* Рядок 1: Табельний (85px) + ПІБ */
-        .row-main { font-weight: bold; color: #111; }
-        .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; }
+        /* Рядок 1: Табельний з пробілами зліва + ПІБ */
+        .row-main { font-weight: bold; color: #111; white-space: pre; }
+        .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; text-align: right; }
 
-        /* Рядки 2 та 3: Відступ 95px (зміщення праворуч ще на 1 пробіл) */
-        .row-sub { margin-left: 95px; color: #444; font-size: 13px; }
-
-        /* Компактний блок пагінації */
-        .pagination-wrapper { flex-shrink: 0; margin-top: 5px; margin-bottom: 10px; }
-        .pagination-wrapper nav { display: flex; justify-content: space-between; align-items: center; }
-        .pagination-wrapper .flex { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-        .pagination-wrapper a, .pagination-wrapper span { padding: 6px 12px; font-size: 13px; text-decoration: none; color: #007bff; border: 1px solid #dee2e6; border-radius: 4px; }
-        .pagination-wrapper a:hover { background-color: #e9ecef; }
-        .pagination-wrapper p { font-size: 12px; color: #6c757d; margin: 0; }
+        /* Рядки 2 та 3: Відступ 95px */
+        .row-sub { margin-left: 95px; color: #444; font-size: 13px; white-space: normal; }
 
         .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; }
         .btn-back:hover { background-color: #5a6268; }
@@ -68,7 +60,8 @@
                 };
 
                 $tabNomRaw = $getCol('TAB_NOM');
-                $tabNomFormatted = str_pad($tabNomRaw !== '' ? $tabNomRaw : '0', 8, '0', STR_PAD_LEFT);
+                // Доповнюємо пробілами зліва до 8 символів замість нулів
+                $tabNomFormatted = str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
 
                 $fam  = $getCol('FAM_RUS');
                 $ima  = $getCol('IMA_RUS');
@@ -79,29 +72,18 @@
                 $prof = $getCol('PROF_INFO');
             @endphp
             <div class="person-item">
-                <!-- Рядок 1: Табельний + ПІБ -->
-                <div class="row-main">
-                    <span class="tab-nom">{{ $tabNomFormatted }}</span> {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}
-                </div>
-                <!-- Рядок 2: DPRT_INFO (зміщено праворуч) -->
-                <div class="row-sub">
-                    {{ $dprt !== '' ? $dprt : 'Підрозділ не вказано' }}
-                </div>
-                <!-- Рядок 3: PROF_INFO (зміщено праворуч) -->
-                <div class="row-sub">
-                    {{ $prof !== '' ? $prof : 'Посада не вказана' }}
-                </div>
+                <!-- Рядок 1: Табельний (з пробілами) + ПІБ -->
+                <div class="row-main"><span class="tab-nom">{{ $tabNomFormatted }}</span>  {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}</div>
+                <!-- Рядок 2: DPRT_INFO -->
+                <div class="row-sub">{{ $dprt !== '' ? $dprt : 'Підрозділ не вказано' }}</div>
+                <!-- Рядок 3: PROF_INFO -->
+                <div class="row-sub">{{ $prof !== '' ? $prof : 'Посада не вказана' }}</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
                 Записи у таблиці SQL_LALL за обраними критеріями відсутні.
             </div>
         @endforelse
-    </div>
-
-    <!-- Компактна пагінація Simple Bootstrap -->
-    <div class="pagination-wrapper">
-        {{ $people->links('pagination::simple-bootstrap-4') }}
     </div>
 
     <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>
