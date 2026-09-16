@@ -9,18 +9,16 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Базові стилі для всіх інтерактивних кнопок */
-        .interactive-btn {
+        /* Повне вимкнення стандартного браузерного прямокутника outline */
+        .interactive-btn,
+        .interactive-btn:focus,
+        .interactive-btn:focus-visible,
+        .interactive-btn:active {
             text-decoration: none;
             transition: all 0.15s ease-in-out;
-            outline: none !important; /* Прибираємо браузерний прямокутник */
+            outline: none !important;
             box-shadow: none !important;
             cursor: pointer;
-        }
-        .interactive-btn:focus,
-        .interactive-btn:focus-visible {
-            outline: none !important; /* Гарантовано вимикаємо браузерний outline */
-            box-shadow: none !important;
         }
 
         /* Головна кнопка "Працюючих всього" */
@@ -56,7 +54,7 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ЕДИНЫЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ (ПІДСВІЧУВАННЯ ТА РАМКА) */
+        /* ЄДИНИЙ СТИЛЬ ДЛЯ АКТИВНОЇ КНОПКИ (СИНЄ ПІДСВІЧУВАННЯ) */
         .interactive-btn.active {
             background-color: #007bff !important;
             color: #ffffff !important;
@@ -104,7 +102,7 @@
 
         let isInitialLoad = true;
 
-        // Зчитуємо збережений індекс із сесії
+        // Отримуємо збережений індекс з сесії
         let savedIndex = sessionStorage.getItem('active_working_btn_index');
         let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
@@ -112,65 +110,63 @@
             currentIndex = 0;
         }
 
-        // Функція для точної зміни активної кнопки без артефактів outline
-        function applyFocus(index) {
+        // Функція для перенесення фокусу та підсвічування
+        function setActiveButton(index) {
             if (index < 0 || index >= buttons.length) return;
 
             currentIndex = index;
             sessionStorage.setItem('active_working_btn_index', currentIndex);
 
-            // Скидаємо системний фокус браузера з поточного активного елемента
-            if (document.activeElement && typeof document.activeElement.blur === 'function') {
-                document.activeElement.blur();
-            }
-
             buttons.forEach((btn, i) => {
                 if (i === currentIndex) {
                     btn.classList.add('active');
-                    btn.focus(); // Призначимо системний фокус актуальній кнопці
+                    btn.focus(); // Встановлюємо системний фокус
                 } else {
                     btn.classList.remove('active');
                 }
             });
         }
 
-        // Запускаємо виділення при завантаженні
+        // Запускаємо виділення при завантаженні сторінки
         setTimeout(() => {
-            applyFocus(currentIndex);
+            setActiveButton(currentIndex);
             setTimeout(() => { isInitialLoad = false; }, 300);
         }, 50);
 
-        // Обробники подій
+        // Обробники подій для кожної кнопки
         buttons.forEach((btn, index) => {
+            // Наведення мишею змінює активну кнопку
             btn.addEventListener('mouseenter', function () {
                 if (!isInitialLoad) {
-                    applyFocus(index);
+                    setActiveButton(index);
                 }
             });
 
+            // Клік мишею фіксує вибір
             btn.addEventListener('click', function () {
                 sessionStorage.setItem('active_working_btn_index', index);
             });
 
+            // Перехід за допомогою клавіші Tab
             btn.addEventListener('focus', function () {
                 if (!isInitialLoad && currentIndex !== index) {
-                    applyFocus(index);
+                    setActiveButton(index);
                 }
             });
         });
 
-        // Навігація клавішами Стрілка Вгору / Вниз
+        // Навігація Стрілками Вгору / Вниз
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 let nextIndex = currentIndex + 1;
-                if (nextIndex >= buttons.length) nextIndex = 0;
-                applyFocus(nextIndex);
+                if (nextIndex >= buttons.length) nextIndex = 0; // Закольцьовуємо
+                setActiveButton(nextIndex);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 let prevIndex = currentIndex - 1;
-                if (prevIndex < 0) prevIndex = buttons.length - 1;
-                applyFocus(prevIndex);
+                if (prevIndex < 0) prevIndex = buttons.length - 1; // Закольцьовуємо
+                setActiveButton(prevIndex);
             }
         });
     });
