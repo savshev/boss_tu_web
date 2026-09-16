@@ -13,4 +13,6 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/main', [MainController::class, 'index'])->name('main');
     Route::get('/menu', [MainController::class, 'menu'])->name('main.next');
     Route::get('/working', [MainController::class, 'working'])->name('working');
+    // Новий маршрут для списку працюючих по категоріях
+    Route::get('/working/list/{category}', [MainController::class, 'workingList'])->name('working.list');
 });

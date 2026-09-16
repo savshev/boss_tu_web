@@ -46,10 +46,10 @@
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
     </div>
 
-    <!-- 15 кнопок показників -->
+    <!-- 15 кнопок показників з посиланням на список -->
     <div class="stats-list">
         @foreach($stats as $alias => $item)
-            <a href="#" class="stat-btn">
+            <a href="{{ route('working.list', ['category' => $alias]) }}" class="stat-btn">
                 <span class="stat-label">{{ $item['label'] }}</span>
                 <span class="stat-values">
                         <span class="stat-count">{{ number_format($item['count'], 0, '', ' ') }}</span>
