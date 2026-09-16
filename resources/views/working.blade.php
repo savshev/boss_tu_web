@@ -9,7 +9,7 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Головна кнопка "Працюючих всього" */
+        /* Главная кнопка "Працюючих всього" */
         .header-stat-btn {
             background-color: #f8f9fa;
             color: #007bff;
@@ -23,11 +23,11 @@
             margin-bottom: 15px;
             text-decoration: none;
             transition: all 0.15s ease-in-out;
-            outline: none !important; /* Прибираємо системну пунктирну рамку */
+            outline: none !important;
             cursor: pointer;
         }
 
-        /* 15 кнопок показників */
+        /* 15 кнопок показателей */
         .stats-list { display: flex; flex-direction: column; gap: 8px; margin-bottom: 25px; }
         .stat-btn {
             display: flex;
@@ -41,7 +41,7 @@
             font-size: 15px;
             text-decoration: none;
             transition: all 0.15s ease-in-out;
-            outline: none !important; /* Прибираємо системну пунктирну рамку */
+            outline: none !important;
             cursor: pointer;
         }
 
@@ -50,7 +50,7 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ЄДИНИЙ СТИЛЬ ДЛЯ АКТИВНОСТІ ТА ФОКУСУ (СИНЄ ПІДСВІЧУВАННЯ) */
+        /* ЕДИНЫЙ СТИЛЬ ДЛЯ АКТИВНОЙ КНОПКИ И СИСТЕМНОГО ФОКУСА */
         .interactive-btn.active,
         .interactive-btn:focus,
         .interactive-btn:focus-visible {
@@ -58,7 +58,8 @@
             color: #ffffff !important;
             border-color: #0056b3 !important;
             box-shadow: 0 4px 10px rgba(0, 123, 255, 0.35) !important;
-            outline: none !important;
+            outline: 2px solid #0056b3 !important;
+            outline-offset: 1px;
         }
 
         .interactive-btn.active .stat-percent,
@@ -74,13 +75,13 @@
 <div class="card">
     <h2>Працюючі</h2>
 
-    <!-- Перша кнопка "Працюючих всього" -->
+    <!-- Первая кнопка "Працюючих всього" -->
     <a href="{{ route('working.list', ['category' => 'CNTENT_ALL']) }}" class="header-stat-btn interactive-btn" tabindex="0">
         <span>Працюючих всього</span>
         <span>{{ number_format($totalWorking, 0, '', ' ') }}</span>
     </a>
 
-    <!-- 15 кнопок показників -->
+    <!-- 15 кнопок показателей -->
     <div class="stats-list">
         @foreach($stats as $alias => $item)
             <a href="{{ route('working.list', ['category' => $alias]) }}" class="stat-btn interactive-btn" tabindex="0">
@@ -101,7 +102,9 @@
         const buttons = Array.from(document.querySelectorAll('.interactive-btn'));
         if (buttons.length === 0) return;
 
-        // Отримуємо збережений індекс з сесії
+        let isInitialLoad = true; // Защита от авто-перехвата мышью при старте
+
+        // Считываем сохраненный индекс из сессии
         let savedIndex = sessionStorage.getItem('active_working_btn_index');
         let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
@@ -109,7 +112,7 @@
             currentIndex = 0;
         }
 
-        // Функція для примусового перенесення фокусу та підсвічування
+        // Функция для точной установки фокуса и подсветки
         function applyFocus(index) {
             if (index < 0 || index >= buttons.length) return;
 
@@ -119,49 +122,52 @@
             buttons.forEach((btn, i) => {
                 if (i === currentIndex) {
                     btn.classList.add('active');
-                    btn.focus(); // Фізично переносимо системний фокус
+                    btn.focus(); // Системно переносим фокус
                 } else {
                     btn.classList.remove('active');
+                    btn.blur(); // Снимаем фокус с остальных
                 }
             });
         }
 
-        // Активація при завантаженні сторінки
-        requestAnimationFrame(() => {
+        // Устанавливаем фокус при загрузке страницы
+        setTimeout(() => {
             applyFocus(currentIndex);
-        });
+            // Снимаем блокировку мыши через 300 мс после старта
+            setTimeout(() => { isInitialLoad = false; }, 300);
+        }, 50);
 
-        // Обробники подій для кожної кнопки
+        // Обработчики событий
         buttons.forEach((btn, index) => {
-            // При наведенні мишею переносимо фокус
+            // Мышь меняет фокус только после завершения первой загрузки
             btn.addEventListener('mouseenter', function () {
-                applyFocus(index);
+                if (!isInitialLoad) {
+                    applyFocus(index);
+                }
             });
 
-            // При кліку зберігаємо стан
             btn.addEventListener('click', function () {
                 sessionStorage.setItem('active_working_btn_index', index);
             });
 
-            // При фокусі через Tab
             btn.addEventListener('focus', function () {
-                if (currentIndex !== index) {
+                if (!isInitialLoad && currentIndex !== index) {
                     applyFocus(index);
                 }
             });
         });
 
-        // Навігація Стрілками Вгору / Вниз
+        // Навигация стрелками Вверх / Вниз
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 let nextIndex = currentIndex + 1;
-                if (nextIndex >= buttons.length) nextIndex = 0; // закольцовываем
+                if (nextIndex >= buttons.length) nextIndex = 0;
                 applyFocus(nextIndex);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 let prevIndex = currentIndex - 1;
-                if (prevIndex < 0) prevIndex = buttons.length - 1; // закольцовываем
+                if (prevIndex < 0) prevIndex = buttons.length - 1;
                 applyFocus(prevIndex);
             }
         });
