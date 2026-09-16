@@ -9,7 +9,7 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 600px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 20px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Повне вимкнення стандартного браузерного прямокутника outline */
+        /* Повне вимкнення браузерного прямокутника outline */
         .interactive-btn,
         .interactive-btn:focus,
         .interactive-btn:focus-visible,
@@ -21,11 +21,11 @@
             cursor: pointer;
         }
 
-        /* Головна кнопка "Працюючих всього" */
+        /* Головна кнопка "Працюючих всього" (нейтральний колір у неактивному стані) */
         .header-stat-btn {
             background-color: #f8f9fa;
-            color: #007bff;
-            border: 2px solid #007bff;
+            color: #212529; /* Темно-сірий колір символів за замовчуванням */
+            border: 2px solid #ced4da; /* Нейтральна сіра рамка */
             padding: 12px 18px;
             border-radius: 6px;
             font-weight: bold;
@@ -54,7 +54,7 @@
         .stat-count { display: inline-block; min-width: 60px; text-align: right; }
         .stat-percent { display: inline-block; min-width: 65px; text-align: right; color: #28a745; margin-left: 10px; }
 
-        /* ЄДИНИЙ СТИЛЬ ДЛЯ АКТИВНОЇ КНОПКИ (СИНЄ ПІДСВІЧУВАННЯ) */
+        /* ЄДИНИЙ СТИЛЬ ДЛЯ АКТИВНОЇ КНОПКИ (СИНЄ ПІДСВІЧУВАННЯ ДЛЯ БУДЬ-ЯКОЇ КНОПКИ) */
         .interactive-btn.active {
             background-color: #007bff !important;
             color: #ffffff !important;
@@ -102,7 +102,7 @@
 
         let isInitialLoad = true;
 
-        // Отримуємо збережений індекс з сесії
+        // Зчитуємо збережений індекс з сесії
         let savedIndex = sessionStorage.getItem('active_working_btn_index');
         let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
