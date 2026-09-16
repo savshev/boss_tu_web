@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} | boss_tu_web</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
 
-        /* Фіксована картка під розмір екрана з внутрішньою прокруткою */
+        /* Фіксована картка на 85% висоти екрану */
         .card {
             background: #ffffff;
             padding: 25px;
@@ -15,7 +15,7 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
             width: 100%;
             max-width: 750px;
-            max-height: 90vh;
+            height: 85vh;
             display: flex;
             flex-direction: column;
             box-sizing: border-box;
@@ -23,25 +23,32 @@
 
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
-        /* Контейнер списку людей зі скролінгом */
+        /* Основний список людей з авто-скролінгом займає весь вільний простір */
         .people-list {
-            flex: 1;
+            flex: 1 1 auto;
             overflow-y: auto;
-            padding-right: 5px;
-            margin-bottom: 15px;
+            padding-right: 8px;
+            margin-bottom: 10px;
         }
 
         .person-item { background: #f8f9fa; border-left: 4px solid #007bff; border-radius: 4px; padding: 10px 12px; margin-bottom: 10px; font-family: 'Courier New', monospace, sans-serif; font-size: 14px; line-height: 1.4; }
 
-        /* Рядок 1: Табельний + ПІБ */
+        /* Рядок 1: Табельний (85px) + ПІБ */
         .row-main { font-weight: bold; color: #111; }
         .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; }
 
-        /* Рядки 2 та 3 з відступом під ширину табельного номера (85px) */
-        .row-sub { margin-left: 85px; color: #444; font-size: 13px; }
+        /* Рядки 2 та 3: Відступ 95px (зміщення праворуч ще на 1 пробіл) */
+        .row-sub { margin-left: 95px; color: #444; font-size: 13px; }
 
-        .pagination-container { flex-shrink: 0; margin-top: 5px; text-align: center; }
-        .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; margin-top: 10px; }
+        /* Компактний блок пагінації */
+        .pagination-wrapper { flex-shrink: 0; margin-top: 5px; margin-bottom: 10px; }
+        .pagination-wrapper nav { display: flex; justify-content: space-between; align-items: center; }
+        .pagination-wrapper .flex { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+        .pagination-wrapper a, .pagination-wrapper span { padding: 6px 12px; font-size: 13px; text-decoration: none; color: #007bff; border: 1px solid #dee2e6; border-radius: 4px; }
+        .pagination-wrapper a:hover { background-color: #e9ecef; }
+        .pagination-wrapper p { font-size: 12px; color: #6c757d; margin: 0; }
+
+        .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; }
         .btn-back:hover { background-color: #5a6268; }
     </style>
 </head>
@@ -52,13 +59,12 @@
     <div class="people-list">
         @forelse($people as $person)
             @php
-                // Перетворюємо об'єкт у масив для безпечного зчитання незалежно від регістру ключів
                 $arr = (array) $person;
 
                 $getCol = function($key) use ($arr) {
                     $upper = strtoupper($key);
                     $lower = strtolower($key);
-                    return trim($arr[$upper] ?? $arr[$lower] ?? '');
+                    return trim((string)($arr[$upper] ?? $arr[$lower] ?? ''));
                 };
 
                 $tabNomRaw = $getCol('TAB_NOM');
@@ -75,25 +81,27 @@
             <div class="person-item">
                 <!-- Рядок 1: Табельний + ПІБ -->
                 <div class="row-main">
-                    <span class="tab-nom">{{ $tabNomFormatted }}</span> {{ $fio != '' ? $fio : 'ПІБ не вказано' }}
+                    <span class="tab-nom">{{ $tabNomFormatted }}</span> {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}
                 </div>
-                <!-- Рядок 2: DPRT_INFO (з відступом 85px) -->
+                <!-- Рядок 2: DPRT_INFO (зміщено праворуч) -->
                 <div class="row-sub">
-                    {{ $dprt != '' ? $dprt : '-' }}
+                    {{ $dprt !== '' ? $dprt : 'Підрозділ не вказано' }}
                 </div>
-                <!-- Рядок 3: PROF_INFO (з відступом 85px) -->
+                <!-- Рядок 3: PROF_INFO (зміщено праворуч) -->
                 <div class="row-sub">
-                    {{ $prof != '' ? $prof : '-' }}
+                    {{ $prof !== '' ? $prof : 'Посада не вказана' }}
                 </div>
             </div>
         @empty
-            <p style="text-align: center; color: #777;">Записи за обраною категорією відсутні.</p>
+            <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
+                Записи у таблиці SQL_LALL за обраними критеріями відсутні.
+            </div>
         @endforelse
     </div>
 
-    <!-- Пагінація -->
-    <div class="pagination-container">
-        {{ $people->links() }}
+    <!-- Компактна пагінація Simple Bootstrap -->
+    <div class="pagination-wrapper">
+        {{ $people->links('pagination::simple-bootstrap-4') }}
     </div>
 
     <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>

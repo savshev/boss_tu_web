@@ -101,9 +101,9 @@ class MainController extends Controller
         return view('working', compact('totalWorking', 'stats'));
     }
 
-    /**
+    /** #################
      * Відображає список людей з таблиці SQL_LALL за обраною категорією.
-     */
+
     public function workingList(Request $request, $category)
     {
         // Назви категорій для заголовка сторінки
@@ -159,4 +159,67 @@ class MainController extends Controller
 
         return view('working_list', compact('people', 'title', 'category'));
     }
+    ################# */
+    /**
+     * Відображає список людей з таблиці SQL_LALL за обраною категорією.
+     */
+    public function workingList(Request $request, $category)
+    {
+        $categoryTitles = [
+            'CNTENT_ALL'  => 'Список усіх працюючих',
+            'CNTENT_MEN'  => 'Список працюючих: Чоловіки',
+            'CNTENT_WOM'  => 'Список працюючих: Жінки',
+            'COUNT_TOUR'  => 'Працівники, які отримали путівки',
+            'COUNT_FINH'  => 'Працівники, які отримали фіндопомогу',
+            'COUNT_KRED'  => 'Працівники, які отримали позички',
+            'COUNT_20'    => 'Працівники віком до 20 років',
+            'COUNT_25'    => 'Працівники віком 20 - 25 років',
+            'COUNT_30'    => 'Працівники віком 25 - 30 років',
+            'COUNT_35'    => 'Працівники віком 30 - 35 років',
+            'COUNT_40'    => 'Працівники віком 40 - 45 років',
+            'COUNT_45'    => 'Працівники віком 45 - 50 років',
+            'COUNT_50'    => 'Працівники віком 45 - 50 років',
+            'COUNT_55'    => 'Працівники віком 50 - 55 років',
+            'COUNT_60'    => 'Працівники віком 55 - 60 років',
+            'COUNT_100'   => 'Працівники віком понад 60 років',
+        ];
+
+        $title = $categoryTitles[$category] ?? 'Список працюючих';
+
+        // 1. Отримуємо ТИМЧАСОВО перший-ліпший запис із таблиці SQL_LALL для діагностики полів
+        $firstRecord = DB::table('SQL_LALL')->first();
+
+        // ЯКЩО ДАНІ НЕ ВИВОДЯТЬСЯ: Розкоментуй рядок нижче, щоб побачити точні назви полів у браузері!
+        // dd($firstRecord);
+
+        // 2. Гнучкий базовий запит (без суворого обмеження за типом data)
+        $query = DB::table('SQL_LALL')
+            ->whereRaw("CAST(PREV AS UNSIGNED) = 0")
+            ->whereRaw("CAST(DEPARTMN AS UNSIGNED) > 0");
+
+        // Фільтрація за категорією
+        switch ($category) {
+            case 'CNTENT_MEN':  $query->where('SEX', 1); break;
+            case 'CNTENT_WOM':  $query->where('SEX', 2); break;
+            case 'COUNT_TOUR':  $query->where('SUMTOU_ALL', '>', 0); break;
+            case 'COUNT_FINH':  $query->where('SUM_FINHLP', '>', 0); break;
+            case 'COUNT_KRED':  $query->where('SUM_KREDIT', '>', 0); break;
+
+            case 'COUNT_20':  $query->where('COUNT_AGE', 20); break;
+            case 'COUNT_25':  $query->where('COUNT_AGE', 25); break;
+            case 'COUNT_30':  $query->where('COUNT_AGE', 30); break;
+            case 'COUNT_35':  $query->where('COUNT_AGE', 35); break;
+            case 'COUNT_40':  $query->where('COUNT_AGE', 40); break;
+            case 'COUNT_45':  $query->where('COUNT_AGE', 45); break;
+            case 'COUNT_50':  $query->where('COUNT_AGE', 50); break;
+            case 'COUNT_55':  $query->where('COUNT_AGE', 55); break;
+            case 'COUNT_60':  $query->where('COUNT_AGE', 60); break;
+            case 'COUNT_100': $query->where('COUNT_AGE', 100); break;
+        }
+
+        $people = $query->paginate(50);
+
+        return view('working_list', compact('people', 'title', 'category'));
+    }
+
 }
