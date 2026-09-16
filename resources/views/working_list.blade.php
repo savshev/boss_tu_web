@@ -30,6 +30,7 @@
             padding-right: 8px;
             margin-bottom: 15px;
             outline: none;
+            position: relative;
         }
 
         /* Звичайний стан картки працівника */
@@ -43,7 +44,7 @@
             font-size: 14px;
             line-height: 1.4;
             cursor: pointer;
-            transition: all 0.15s ease-in-out;
+            transition: background-color 0.15s ease, border-color 0.15s ease;
             outline: none;
         }
 
@@ -63,7 +64,7 @@
         .row-main { font-weight: bold; color: #111; white-space: pre; }
         .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; text-align: right; }
 
-        /* Рядки 2 та 3: Чіткий відступ 85px під рівень ПІБ */
+        /* Рядки 2 та 3: Чіткий відступ під рівень ПІБ */
         .row-sub { margin-left: 85px; color: #444; font-size: 13px; white-space: normal; padding-left: 16px; }
 
         .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; }
@@ -96,7 +97,7 @@
                 $dprt = $getCol('DPRT_INFO');
                 $prof = $getCol('PROF_INFO');
             @endphp
-            <div class="person-item {{ $index === 0 ? 'active' : '' }}" tabindex="0">
+            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-index="{{ $index }}" tabindex="0">
                 <!-- Рядок 1: Табельний + ПІБ -->
                 <div class="row-main"><span class="tab-nom">{{ $tabNomFormatted }}</span>  {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}</div>
                 <!-- Рядок 2: DPRT_INFO (вирівняно під ПІБ) -->
@@ -116,13 +117,15 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const container = document.getElementById('peopleList');
         const items = document.querySelectorAll('.person-item');
         if (items.length === 0) return;
 
         let currentIndex = 0;
+        let isKeyboardScroll = false;
 
-        // Функція для встановлення активного рядка та підкрутки скролінгу
-        function setActiveItem(index) {
+        // Встановлення активного рядка
+        function setActiveItem(index, scrollIntoView = true) {
             if (index < 0 || index >= items.length) return;
 
             items.forEach(item => item.classList.remove('active'));
@@ -131,32 +134,61 @@
             const activeItem = items[currentIndex];
             activeItem.classList.add('active');
 
-            // Автоматичний скролінг контейнера до поточного активного елемента
-            activeItem.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest'
-            });
+            if (scrollIntoView) {
+                isKeyboardScroll = true;
+                activeItem.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'nearest'
+                });
+                setTimeout(() => { isKeyboardScroll = false; }, 300);
+            }
         }
 
         // Клік мишею по рядку
         items.forEach((item, index) => {
             item.addEventListener('click', function () {
-                setActiveItem(index);
+                setActiveItem(index, true);
             });
         });
 
-        // Керування клавішами Стрілка вгору / Стрілка вниз
+        // Керування стрілками клавіатури
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
                 if (currentIndex < items.length - 1) {
-                    setActiveItem(currentIndex + 1);
+                    setActiveItem(currentIndex + 1, true);
                 }
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 if (currentIndex > 0) {
-                    setActiveItem(currentIndex - 1);
+                    setActiveItem(currentIndex - 1, true);
                 }
+            }
+        });
+
+        // При прокручуванні мишею автоматично виділяємо рядок у видимому центрі контейнера
+        container.addEventListener('scroll', function () {
+            if (isKeyboardScroll) return;
+
+            const containerRect = container.getBoundingClientRect();
+            const containerCenter = containerRect.top + containerRect.height / 2;
+
+            let closestIndex = currentIndex;
+            let minDistance = Infinity;
+
+            items.forEach((item, index) => {
+                const itemRect = item.getBoundingClientRect();
+                const itemCenter = itemRect.top + itemRect.height / 2;
+                const distance = Math.abs(containerCenter - itemCenter);
+
+                if (distance < minDistance) {
+                    minDistance = distance;
+                    closestIndex = index;
+                }
+            });
+
+            if (closestIndex !== currentIndex) {
+                setActiveItem(closestIndex, false);
             }
         });
     });
