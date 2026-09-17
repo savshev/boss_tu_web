@@ -9,19 +9,12 @@
         .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 680px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
-        /* Таблична сітка картки */
         .card-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px 20px; font-family: 'Courier New', monospace, sans-serif; font-size: 15px; align-items: start; }
 
-        /* Ліва частина — звичайний шрифт */
         .label-col { text-align: right; font-weight: normal; color: #555; }
-
-        /* Права частина — жирний шрифт */
         .value-col { text-align: left; font-weight: bold; color: #111; line-height: 1.5; }
-
-        /* Червоне виділення для боргу */
         .text-danger { color: #dc3545; font-weight: bold; }
 
-        /* Інтерактивні кнопки для квитанцій/деталізації */
         .card-btn {
             display: inline-block;
             background-color: #007bff;
@@ -36,11 +29,40 @@
         }
         .card-btn:hover { background-color: #0056b3; }
 
-        /* Порожній рядок-розділювач */
         .grid-divider { grid-column: 1 / -1; height: 15px; }
 
         .btn-back { display: block; width: 100%; padding: 12px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; margin-top: 25px; }
         .btn-back:hover { background-color: #5a6268; }
+
+        /* Стилі для Модального Вікна */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        .modal-content {
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 8px;
+            width: 90%;
+            max-width: 750px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+        }
+        .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 8px; }
+
+        /* Таблиця з однаковим лівим вирівнюванням колонок */
+        .details-table { width: 100%; border-collapse: collapse; font-family: 'Courier New', monospace, sans-serif; font-size: 14px; margin-bottom: 20px; }
+        .details-table th, .details-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dee2e6; }
+        .details-table th { background-color: #f8f9fa; color: #007bff; font-weight: bold; }
+
+        .btn-close-modal { padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; float: right; font-weight: bold; }
+        .btn-close-modal:hover { background-color: #5a6268; }
     </style>
 </head>
 <body>
@@ -50,7 +72,6 @@
     @php
         $arr = (array) $person;
 
-        // Гнучке зчитування полів незалежно від регістру
         $getCol = function(...$keys) use ($arr) {
             foreach ($keys as $key) {
                 $upper = strtoupper($key);
@@ -61,12 +82,12 @@
             return '';
         };
 
-        // Функція форматування суми з копійками (####.##)
         $fmtMoney = function($val) {
             $num = (float) str_replace(',', '.', $val);
             return number_format($num, 2, '.', '');
         };
 
+        $partnerVal = $getCol('PARTNER');
         $fio = trim($getCol('FAM_RUS') . ' ' . $getCol('IMA_RUS') . ' ' . $getCol('OTCH_RUS'));
         $tabNom = $getCol('TAB_NOM');
         $dateWork0 = $getCol('DATE_WORK0');
@@ -76,22 +97,17 @@
         $dateBirth = $getCol('DATE_BIRTH');
         $phone = $getCol('PHONE');
 
-        // Фіндопомога
         $sumFinHlp = (float) $getCol('SUM_FINHLP', 'SUMFINHLP');
-
-        // Путівки
         $cntTours  = (int) $getCol('CNT_TOURS', 'CNTTOURS');
         $sumTouAll = (float) $getCol('SUMTOU_ALL', 'SUM_TOUALL', 'SUM_TOU_ALL');
         $sumTouOpl = (float) $getCol('SUMTOU_OPL', 'SUM_TOUOPL', 'SUM_TOU_OPL');
 
-        // Позички
         $sumKredit = (float) $getCol('SUM_KREDIT', 'SUMKREDIT');
         $sumRedem  = (float) $getCol('SUM_REDEM', 'SUMREDEM');
         $sumTail   = (float) $getCol('SUM_TAIL', 'SUMTAIL');
     @endphp
 
     <div class="card-grid">
-        <!-- Перші 5 показників -->
         <div class="label-col">ПІБ</div>
         <div class="value-col">{{ $fio !== '' ? $fio : '-' }}</div>
 
@@ -107,10 +123,8 @@
         <div class="label-col">Посада</div>
         <div class="value-col">{{ $profInfo !== '' ? $profInfo : '-' }}</div>
 
-        <!-- Порожній рядок-розділювач -->
         <div class="grid-divider"></div>
 
-        <!-- Наступні показники -->
         <div class="label-col">День нар.</div>
         <div class="value-col">{{ $dateBirth !== '' ? $dateBirth : '-' }}</div>
 
@@ -120,7 +134,7 @@
         <!-- Фіндопомога -->
         <div class="label-col">
             @if($sumFinHlp > 0)
-                <button type="button" class="card-btn">[Фіндопомога]</button>
+                <button type="button" class="card-btn" onclick="showDetails('finh')">[Фіндопомога]</button>
             @else
                 Фіндопомога
             @endif
@@ -132,7 +146,7 @@
         <!-- Путівки -->
         <div class="label-col">
             @if($cntTours > 0 || $sumTouAll > 0)
-                <button type="button" class="card-btn">[Путівки]</button>
+                <button type="button" class="card-btn" onclick="showDetails('tour')">[Путівки]</button>
             @else
                 Путівки
             @endif
@@ -144,7 +158,7 @@
         <!-- Позички -->
         <div class="label-col">
             @if($sumKredit > 0)
-                <button type="button" class="card-btn">[Позички]</button>
+                <button type="button" class="card-btn" onclick="showDetails('vkre')">[Позички]</button>
             @else
                 Позички
             @endif
@@ -164,5 +178,64 @@
 
     <a href="javascript:history.back()" class="btn-back">← Назад до списку</a>
 </div>
+
+<!-- Модальне вікно деталей -->
+<div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+        <div class="modal-header" id="modalTitle">Деталізація</div>
+        <div id="modalBody">Завантаження...</div>
+        <button class="btn-close-modal" onclick="closeModal()">Закрити</button>
+    </div>
+</div>
+
+<script>
+    const currentPartner = "{{ $partnerVal }}";
+
+    function showDetails(type) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        overlay.style.display = 'flex';
+        body.innerHTML = 'Завантаження даних...';
+
+        if (type === 'finh') title.innerText = 'Історія фіндопомоги';
+        if (type === 'tour') title.innerText = 'Історія путівок';
+        if (type === 'vkre') title.innerText = 'Історія позичок';
+
+        fetch(`/working/person/${currentPartner}/details/${type}`)
+            .then(res => res.json())
+            .then(data => {
+                let html = '<table class="details-table">';
+
+                if (data.type === 'finh') {
+                    html += '<thead><tr><th>Дата</th><th>Сума (грн)</th><th>Інформація</th></tr></thead><tbody>';
+                    data.records.forEach(r => {
+                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td></tr>`;
+                    });
+                } else if (data.type === 'tour') {
+                    html += '<thead><tr><th>Дата</th><th>Сума</th><th>%</th><th>Сплачено</th><th>Інформація</th></tr></thead><tbody>';
+                    data.records.forEach(r => {
+                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td><td>${r.col5}</td></tr>`;
+                    });
+                } else if (data.type === 'vkre') {
+                    html += '<thead><tr><th>Дата</th><th>Взято</th><th>Погашено</th><th>Інформація</th></tr></thead><tbody>';
+                    data.records.forEach(r => {
+                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td></tr>`;
+                    });
+                }
+
+                html += '</tbody></table>';
+                body.innerHTML = html;
+            })
+            .catch(err => {
+                body.innerHTML = '<div style="color:red;">Помилка завантаження даних.</div>';
+            });
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').style.display = 'none';
+    }
+</script>
 </body>
 </html>

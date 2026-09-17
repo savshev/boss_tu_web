@@ -175,4 +175,66 @@ class MainController extends Controller
         return view('person_card', compact('person'));
     }
 
+    /**
+     * Повертає деталізовані записи з SQL_FINH, SQL_TOUR або SQL_VKRE за полем PARTNER.
+     */
+    public function personDetails($partner, $type)
+    {
+        $data = [];
+
+        if ($type === 'finh') {
+            // Фіндопомога z SQL_FINH
+            $records = DB::table('SQL_FINH')->where('PARTNER', $partner)->get();
+            foreach ($records as $r) {
+                $arr = (array) $r;
+                $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
+
+                $data[] = [
+                    'col1' => $getCol('DATE'),
+                    'col2' => number_format((float) str_replace(',', '.', $getCol('SUMMA')), 2, '.', ''),
+                    'col3' => $getCol('INFO'),
+                ];
+            }
+        } elseif ($type === 'tour') {
+            // Путівки z SQL_TOUR
+            $records = DB::table('SQL_TOUR')->where('PARTNER', $partner)->get();
+            foreach ($records as $r) {
+                $arr = (array) $r;
+                $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
+
+                $perc = $getCol('PERC_INT');
+
+                $data[] = [
+                    'col1' => $getCol('DATE'),
+                    'col2' => number_format((float) str_replace(',', '.', $getCol('SUMTOU_ALL')), 2, '.', ''),
+                    'col3' => $perc !== '' ? "{$perc}%" : '',
+                    'col4' => number_format((float) str_replace(',', '.', $getCol('SUMTOU_OPL')), 2, '.', ''),
+                    'col5' => $getCol('TOUR_INFO'),
+                ];
+            }
+        } elseif ($type === 'vkre') {
+            // Позички z SQL_VKRE
+            $records = DB::table('SQL_VKRE')->where('PARTNER', $partner)->get();
+            foreach ($records as $r) {
+                $arr = (array) $r;
+                $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
+
+                $sumKredit = (float) str_replace(',', '.', $getCol('SUM_KREDIT'));
+                $sumRedem  = (float) str_replace(',', '.', $getCol('SUM_REDEM'));
+
+                $data[] = [
+                    'col1' => $getCol('DATE'),
+                    'col2' => $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '', // Нуль = пусто
+                    'col3' => $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '',   // Нуль = пусто
+                    'col4' => $getCol('INFO_VEDM'),
+                ];
+            }
+        }
+
+        return response()->json([
+            'type' => $type,
+            'records' => $data
+        ]);
+    }
+
 }
