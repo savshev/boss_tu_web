@@ -6,16 +6,19 @@
     <title>Картка працівника | boss_tu_web</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; padding: 20px; box-sizing: border-box; }
-        .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 650px; }
+        .card { background: #ffffff; padding: 30px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 680px; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 25px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 22px; }
 
         /* Таблична сітка картки */
         .card-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px 20px; font-family: 'Courier New', monospace, sans-serif; font-size: 15px; align-items: start; }
 
         .label-col { text-align: right; font-weight: bold; color: #555; }
-        .value-col { text-align: left; color: #111; }
+        .value-col { text-align: left; color: #111; line-height: 1.5; }
 
-        /* Стиль для інтерактивних кнопок у лівій колонці */
+        /* Червоне виділення для боргу */
+        .text-danger { color: #dc3545; font-weight: bold; }
+
+        /* Інтерактивні кнопки для квитанцій/деталізації */
         .card-btn {
             display: inline-block;
             background-color: #007bff;
@@ -43,10 +46,22 @@
 
     @php
         $arr = (array) $person;
-        $getCol = function($key) use ($arr) {
-            $upper = strtoupper($key);
-            $lower = strtolower($key);
-            return trim((string)($arr[$upper] ?? $arr[$lower] ?? ''));
+
+        // Гнучке зчитування полів незалежно від регістру
+        $getCol = function(...$keys) use ($arr) {
+            foreach ($keys as $key) {
+                $upper = strtoupper($key);
+                $lower = strtolower($key);
+                if (array_key_exists($upper, $arr) && $arr[$upper] !== null) return trim((string)$arr[$upper]);
+                if (array_key_exists($lower, $arr) && $arr[$lower] !== null) return trim((string)$arr[$lower]);
+            }
+            return '';
+        };
+
+        // Функція форматування суми з копійками (####.##)
+        $fmtMoney = function($val) {
+            $num = (float) str_replace(',', '.', $val);
+            return number_format($num, 2, '.', '');
         };
 
         $fio = trim($getCol('FAM_RUS') . ' ' . $getCol('IMA_RUS') . ' ' . $getCol('OTCH_RUS'));
@@ -58,13 +73,18 @@
         $dateBirth = $getCol('DATE_BIRTH');
         $phone = $getCol('PHONE');
 
-        $sumFinHlp = (float) $getCol('SUM_FINHLP');
-        $cntTours  = (int) $getCol('CNT_TOURS');
-        $sumTouAll = (float) $getCol('SUM_TOUALL');
+        // Фіндопомога
+        $sumFinHlp = (float) $getCol('SUM_FINHLP', 'SUMFINHLP');
 
-        $sumKredit = (float) $getCol('SUM_KREDIT');
-        $sumRedem  = (float) $getCol('SUM_REDEM');
-        $sumTail   = (float) $getCol('SUM_TAIL');
+        // Путівки (перевіряємо різні варіанти колонок: SUMTOU_ALL або SUM_TOUALL)
+        $cntTours  = (int) $getCol('CNT_TOURS', 'CNTTOURS');
+        $sumTouAll = (float) $getCol('SUMTOU_ALL', 'SUM_TOUALL', 'SUM_TOU_ALL');
+        $sumTouOpl = (float) $getCol('SUMTOU_OPL', 'SUM_TOUOPL', 'SUM_TOU_OPL');
+
+        // Позички
+        $sumKredit = (float) $getCol('SUM_KREDIT', 'SUMKREDIT');
+        $sumRedem  = (float) $getCol('SUM_REDEM', 'SUMREDEM');
+        $sumTail   = (float) $getCol('SUM_TAIL', 'SUMTAIL');
     @endphp
 
     <div class="card-grid">
@@ -84,7 +104,7 @@
         <div class="label-col">Посада</div>
         <div class="value-col">{{ $profInfo !== '' ? $profInfo : '-' }}</div>
 
-        <!-- Пропускаємо один рядок -->
+        <!-- Порожній рядок-розділювач -->
         <div class="grid-divider"></div>
 
         <!-- Наступні показники -->
@@ -97,40 +117,42 @@
         <!-- Фіндопомога -->
         <div class="label-col">
             @if($sumFinHlp > 0)
-                <button type="button" class="card-btn">Фіндопомога</button>
+                <button type="button" class="card-btn">[Фіндопомога]</button>
             @else
                 Фіндопомога
             @endif
         </div>
         <div class="value-col">
-            {{ $sumFinHlp > 0 ? "на суму {$sumFinHlp} грн" : '-' }}
+            {{ $sumFinHlp > 0 ? "на суму " . $fmtMoney($sumFinHlp) . " грн" : '-' }}
         </div>
 
         <!-- Путівки -->
         <div class="label-col">
             @if($cntTours > 0 || $sumTouAll > 0)
-                <button type="button" class="card-btn">Путівки</button>
+                <button type="button" class="card-btn">[Путівки]</button>
             @else
                 Путівки
             @endif
         </div>
         <div class="value-col">
-            {{ ($cntTours > 0 || $sumTouAll > 0) ? "{$cntTours} на суму {$sumTouAll} грн" : '-' }}
+            {{ ($cntTours > 0 || $sumTouAll > 0) ? "{$cntTours} на суму " . $fmtMoney($sumTouAll) . " грн, сплачено " . $fmtMoney($sumTouOpl) . " грн" : '-' }}
         </div>
 
         <!-- Позички -->
         <div class="label-col">
             @if($sumKredit > 0)
-                <button type="button" class="card-btn">Позички</button>
+                <button type="button" class="card-btn">[Позички]</button>
             @else
                 Позички
             @endif
         </div>
         <div class="value-col">
             @if($sumKredit > 0)
-                взято {{ $sumKredit }} грн<br>
-                погашено {{ $sumRedem }} грн<br>
-                борг {{ $sumTail }} грн
+                взято {{ $fmtMoney($sumKredit) }} грн<br>
+                погашено {{ $fmtMoney($sumRedem) }} грн<br>
+                @if($sumTail > 0)
+                    <span class="text-danger">борг {{ $fmtMoney($sumTail) }} грн</span>
+                @endif
             @else
                 -
             @endif
