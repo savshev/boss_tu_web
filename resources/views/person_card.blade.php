@@ -134,7 +134,7 @@
         <!-- Фіндопомога -->
         <div class="label-col">
             @if($sumFinHlp > 0)
-                <button type="button" class="card-btn" onclick="showDetails('finh')">[Фіндопомога]</button>
+                <button type="button" class="card-btn" onclick="showDetails('finh')">Фіндопомога</button>
             @else
                 Фіндопомога
             @endif
@@ -146,7 +146,7 @@
         <!-- Путівки -->
         <div class="label-col">
             @if($cntTours > 0 || $sumTouAll > 0)
-                <button type="button" class="card-btn" onclick="showDetails('tour')">[Путівки]</button>
+                <button type="button" class="card-btn" onclick="showDetails('tour')">Путівки</button>
             @else
                 Путівки
             @endif
@@ -158,7 +158,7 @@
         <!-- Позички -->
         <div class="label-col">
             @if($sumKredit > 0)
-                <button type="button" class="card-btn" onclick="showDetails('vkre')">[Позички]</button>
+                <button type="button" class="card-btn" onclick="showDetails('vkre')">Позички</button>
             @else
                 Позички
             @endif

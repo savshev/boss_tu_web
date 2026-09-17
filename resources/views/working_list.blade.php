@@ -9,24 +9,37 @@
         .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 750px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
+        /* Панель пошуку */
+        .search-box { display: flex; gap: 10px; margin-bottom: 12px; flex-shrink: 0; }
+        .search-input { flex: 1; padding: 9px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; outline: none; }
+        .search-input:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
+
         .people-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
         .person-item { background: #f8f9fa; border-left: 4px solid #ced4da; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; font-family: 'Courier New', monospace, sans-serif; font-size: 14px; line-height: 1.4; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease; outline: none; }
         .person-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
-
         .person-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
         .row-main { font-weight: bold; color: #111; white-space: pre; }
         .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; text-align: right; }
         .row-sub { margin-left: 85px; color: #444; font-size: 13px; white-space: normal; padding-left: 16px; }
 
-        .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; }
+        .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
+        .btn-search { padding: 11px 20px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; text-decoration: none; }
+        .btn-search:hover { background-color: #0056b3; }
+
+        .btn-back { flex: 1; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-back:hover { background-color: #5a6268; }
     </style>
 </head>
 <body>
 <div class="card">
     <h2>{{ $title }}</h2>
+
+    <!-- Поле пошуку -->
+    <div class="search-box">
+        <input type="text" id="searchInput" class="search-input" placeholder="Пошук за прізвищем або табельним номером..." autocomplete="off">
+    </div>
 
     <div class="people-list" id="peopleList" tabindex="0">
         @forelse($people as $index => $person)
@@ -51,7 +64,11 @@
                 $dprt = $getCol('DPRT_INFO');
                 $prof = $getCol('PROF_INFO');
             @endphp
-            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-partner="{{ $partnerVal }}" tabindex="0">
+            <div class="person-item {{ $index === 0 ? 'active' : '' }}"
+                 data-partner="{{ $partnerVal }}"
+                 data-tabnom="{{ $tabNomRaw }}"
+                 data-fam="{{ mb_strtolower($fam) }}"
+                 tabindex="0">
                 <div class="row-main"><span class="tab-nom">{{ $tabNomFormatted }}</span>  {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}</div>
                 <div class="row-sub">{{ $dprt !== '' ? $dprt : 'Підрозділ не вказано' }}</div>
                 <div class="row-sub">{{ $prof !== '' ? $prof : 'Посада не вказана' }}</div>
@@ -63,17 +80,20 @@
         @endforelse
     </div>
 
-    <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>
+    <div class="action-buttons">
+        <button type="button" class="btn-search" onclick="focusSearch()">🔍 Пошук</button>
+        <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>
+    </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const container = document.getElementById('peopleList');
-        const items = document.querySelectorAll('.person-item');
+        const searchInput = document.getElementById('searchInput');
+        let items = Array.from(document.querySelectorAll('.person-item'));
         if (items.length === 0) return;
 
         let currentIndex = 0;
-        let isKeyboardScroll = false;
 
         function openPersonCard(item) {
             const partner = item.getAttribute('data-partner');
@@ -82,28 +102,50 @@
             }
         }
 
-        function setActiveItem(index, scrollIntoView = true) {
-            if (index < 0 || index >= items.length) return;
+        function setActiveItem(index) {
+            const visibleItems = items.filter(item => item.style.display !== 'none');
+            if (visibleItems.length === 0) return;
 
             items.forEach(item => item.classList.remove('active'));
 
+            if (index < 0) index = 0;
+            if (index >= visibleItems.length) index = visibleItems.length - 1;
+
             currentIndex = index;
-            const activeItem = items[currentIndex];
+            const activeItem = visibleItems[currentIndex];
             activeItem.classList.add('active');
 
-            if (scrollIntoView) {
-                isKeyboardScroll = true;
-                activeItem.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'nearest'
-                });
-                setTimeout(() => { isKeyboardScroll = false; }, 300);
-            }
+            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        items.forEach((item, index) => {
+        // Швидкий пошук у режимі реального часу
+        searchInput.addEventListener('input', function () {
+            const query = this.value.trim().toLowerCase();
+
+            items.forEach(item => {
+                const fam = item.getAttribute('data-fam') || '';
+                const tabnom = item.getAttribute('data-tabnom') || '';
+
+                if (fam.includes(query) || tabnom.includes(query)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+
+            setActiveItem(0);
+        });
+
+        window.focusSearch = function() {
+            searchInput.focus();
+            searchInput.select();
+        };
+
+        items.forEach((item) => {
             item.addEventListener('click', function () {
-                setActiveItem(index, true);
+                const visibleItems = items.filter(i => i.style.display !== 'none');
+                const idx = visibleItems.indexOf(item);
+                if (idx !== -1) setActiveItem(idx);
             });
 
             item.addEventListener('dblclick', function () {
@@ -112,46 +154,21 @@
         });
 
         document.addEventListener('keydown', function (e) {
+            if (document.activeElement === searchInput && e.key !== 'Enter' && e.key !== 'ArrowDown') {
+                return;
+            }
+
+            const visibleItems = items.filter(i => i.style.display !== 'none');
+
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < items.length - 1) {
-                    setActiveItem(currentIndex + 1, true);
-                }
+                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (currentIndex > 0) {
-                    setActiveItem(currentIndex - 1, true);
-                }
+                if (currentIndex > 0) setActiveItem(currentIndex - 1);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (items[currentIndex]) {
-                    openPersonCard(items[currentIndex]);
-                }
-            }
-        });
-
-        container.addEventListener('scroll', function () {
-            if (isKeyboardScroll) return;
-
-            const containerRect = container.getBoundingClientRect();
-            const containerCenter = containerRect.top + containerRect.height / 2;
-
-            let closestIndex = currentIndex;
-            let minDistance = Infinity;
-
-            items.forEach((item, index) => {
-                const itemRect = item.getBoundingClientRect();
-                const itemCenter = itemRect.top + itemRect.height / 2;
-                const distance = Math.abs(containerCenter - itemCenter);
-
-                if (distance < minDistance) {
-                    minDistance = distance;
-                    closestIndex = index;
-                }
-            });
-
-            if (closestIndex !== currentIndex) {
-                setActiveItem(closestIndex, false);
+                if (visibleItems[currentIndex]) openPersonCard(visibleItems[currentIndex]);
             }
         });
     });
