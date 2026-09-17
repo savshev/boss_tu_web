@@ -25,8 +25,24 @@
         .row-sub { margin-left: 85px; color: #444; font-size: 13px; white-space: normal; padding-left: 16px; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
-        .btn-search { padding: 11px 20px; background-color: #007bff; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; cursor: pointer; text-decoration: none; }
-        .btn-search:hover { background-color: #0056b3; }
+
+        /* Компактна сіра кнопка-іконка пошуку */
+        .btn-search-icon {
+            width: 44px;
+            height: 44px;
+            background-color: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+            flex-shrink: 0;
+        }
+        .btn-search-icon:hover { background-color: #5a6268; }
 
         .btn-back { flex: 1; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-back:hover { background-color: #5a6268; }
@@ -81,7 +97,8 @@
     </div>
 
     <div class="action-buttons">
-        <button type="button" class="btn-search" onclick="focusSearch()">🔍 Пошук</button>
+        <!-- Компактна сіра кнопка з лупою -->
+        <button type="button" class="btn-search-icon" onclick="focusSearch()" title="Швидкий пошук">🔍</button>
         <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>
     </div>
 </div>
