@@ -158,4 +158,22 @@ class MainController extends Controller
         return view('working_list', compact('people', 'title', 'category'));
     }
 
+    /**
+     * Відображає детальну картку працівника з таблиці SQL_LALL.
+     */
+    public function personCard($id)
+    {
+        // Шукаємо запис у SQL_LALL за унікальним ID або TAB_NOM
+        $person = DB::table('SQL_LALL')
+            ->where('ID', $id)
+            ->orWhere('TAB_NOM', $id)
+            ->first();
+
+        if (!$person) {
+            return redirect()->back()->with('error', 'Працівника не знайдено');
+        }
+
+        return view('person_card', compact('person'));
+    }
+
 }

@@ -46,6 +46,7 @@
             cursor: pointer;
             transition: background-color 0.15s ease, border-color 0.15s ease;
             outline: none;
+            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-id="{{ $getCol('ID') !== '' ? $getCol('ID') : $getCol('TAB_NOM') }}" tabindex="0">
         }
 
         .person-item:hover {
@@ -191,6 +192,45 @@
                 setActiveItem(closestIndex, false);
             }
         });
+    });
+
+    // Функція переходу до картки працівника
+    function openPersonCard(item) {
+        const id = item.getAttribute('data-id');
+        if (id) {
+            window.location.href = `/working/person/${id}`;
+        }
+    }
+
+    // Подвійний клік мишею
+    items.forEach((item, index) => {
+        item.addEventListener('click', function () {
+            setActiveItem(index, true);
+        });
+
+        item.addEventListener('dblclick', function () {
+            openPersonCard(item);
+        });
+    });
+
+    // Натискання Enter на активному рядку
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            if (currentIndex < items.length - 1) {
+                setActiveItem(currentIndex + 1, true);
+            }
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            if (currentIndex > 0) {
+                setActiveItem(currentIndex - 1, true);
+            }
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (items[currentIndex]) {
+                openPersonCard(items[currentIndex]);
+            }
+        }
     });
 </script>
 </body>
