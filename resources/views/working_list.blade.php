@@ -6,66 +6,18 @@
     <title>{{ $title }} | boss_tu_web</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
-
-        /* Фіксована картка на 85% висоти екрану */
-        .card {
-            background: #ffffff;
-            padding: 25px;
-            border-radius: 10px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-            width: 100%;
-            max-width: 750px;
-            height: 85vh;
-            display: flex;
-            flex-direction: column;
-            box-sizing: border-box;
-        }
-
+        .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 750px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
-        /* Список людей з авто-скролінгом */
-        .people-list {
-            flex: 1 1 auto;
-            overflow-y: auto;
-            padding-right: 8px;
-            margin-bottom: 15px;
-            outline: none;
-            position: relative;
-        }
+        .people-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
-        /* Звичайний стан картки працівника */
-        .person-item {
-            background: #f8f9fa;
-            border-left: 4px solid #ced4da;
-            border-radius: 4px;
-            padding: 10px 12px;
-            margin-bottom: 8px;
-            font-family: 'Courier New', monospace, sans-serif;
-            font-size: 14px;
-            line-height: 1.4;
-            cursor: pointer;
-            transition: background-color 0.15s ease, border-color 0.15s ease;
-            outline: none;
-            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-id="{{ $getCol('ID') !== '' ? $getCol('ID') : $getCol('TAB_NOM') }}" tabindex="0">
-        }
+        .person-item { background: #f8f9fa; border-left: 4px solid #ced4da; border-radius: 4px; padding: 10px 12px; margin-bottom: 8px; font-family: 'Courier New', monospace, sans-serif; font-size: 14px; line-height: 1.4; cursor: pointer; transition: background-color 0.15s ease, border-color 0.15s ease; outline: none; }
+        .person-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
 
-        .person-item:hover {
-            background-color: #f1f3f5;
-            border-left-color: #6c757d;
-        }
+        .person-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        /* ВИДІЛЕНИЙ (ПОТОЧНИЙ) РЯДОК */
-        .person-item.active {
-            background-color: #e7f1ff !important;
-            border-left: 5px solid #007bff !important;
-            box-shadow: 0 2px 6px rgba(0,123,255,0.25);
-        }
-
-        /* Рядок 1: Табельний + ПІБ */
         .row-main { font-weight: bold; color: #111; white-space: pre; }
         .tab-nom { color: #007bff; display: inline-block; width: 85px; font-weight: bold; text-align: right; }
-
-        /* Рядки 2 та 3: Чіткий відступ під рівень ПІБ */
         .row-sub { margin-left: 85px; color: #444; font-size: 13px; white-space: normal; padding-left: 16px; }
 
         .btn-back { display: block; width: 100%; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; flex-shrink: 0; }
@@ -87,6 +39,7 @@
                     return trim((string)($arr[$upper] ?? $arr[$lower] ?? ''));
                 };
 
+                $partnerVal = $getCol('PARTNER');
                 $tabNomRaw = $getCol('TAB_NOM');
                 $tabNomFormatted = str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
 
@@ -98,12 +51,9 @@
                 $dprt = $getCol('DPRT_INFO');
                 $prof = $getCol('PROF_INFO');
             @endphp
-            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-index="{{ $index }}" tabindex="0">
-                <!-- Рядок 1: Табельний + ПІБ -->
+            <div class="person-item {{ $index === 0 ? 'active' : '' }}" data-partner="{{ $partnerVal }}" tabindex="0">
                 <div class="row-main"><span class="tab-nom">{{ $tabNomFormatted }}</span>  {{ $fio !== '' ? $fio : 'ПІБ не вказано' }}</div>
-                <!-- Рядок 2: DPRT_INFO (вирівняно під ПІБ) -->
                 <div class="row-sub">{{ $dprt !== '' ? $dprt : 'Підрозділ не вказано' }}</div>
-                <!-- Рядок 3: PROF_INFO (вирівняно під ПІБ) -->
                 <div class="row-sub">{{ $prof !== '' ? $prof : 'Посада не вказана' }}</div>
             </div>
         @empty
@@ -125,7 +75,13 @@
         let currentIndex = 0;
         let isKeyboardScroll = false;
 
-        // Встановлення активного рядка
+        function openPersonCard(item) {
+            const partner = item.getAttribute('data-partner');
+            if (partner) {
+                window.location.href = `/working/person/${partner}`;
+            }
+        }
+
         function setActiveItem(index, scrollIntoView = true) {
             if (index < 0 || index >= items.length) return;
 
@@ -145,14 +101,16 @@
             }
         }
 
-        // Клік мишею по рядку
         items.forEach((item, index) => {
             item.addEventListener('click', function () {
                 setActiveItem(index, true);
             });
+
+            item.addEventListener('dblclick', function () {
+                openPersonCard(item);
+            });
         });
 
-        // Керування стрілками клавіатури
         document.addEventListener('keydown', function (e) {
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
@@ -164,10 +122,14 @@
                 if (currentIndex > 0) {
                     setActiveItem(currentIndex - 1, true);
                 }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (items[currentIndex]) {
+                    openPersonCard(items[currentIndex]);
+                }
             }
         });
 
-        // При прокручуванні мишею автоматично виділяємо рядок у видимому центрі контейнера
         container.addEventListener('scroll', function () {
             if (isKeyboardScroll) return;
 
@@ -192,45 +154,6 @@
                 setActiveItem(closestIndex, false);
             }
         });
-    });
-
-    // Функція переходу до картки працівника
-    function openPersonCard(item) {
-        const id = item.getAttribute('data-id');
-        if (id) {
-            window.location.href = `/working/person/${id}`;
-        }
-    }
-
-    // Подвійний клік мишею
-    items.forEach((item, index) => {
-        item.addEventListener('click', function () {
-            setActiveItem(index, true);
-        });
-
-        item.addEventListener('dblclick', function () {
-            openPersonCard(item);
-        });
-    });
-
-    // Натискання Enter на активному рядку
-    document.addEventListener('keydown', function (e) {
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            if (currentIndex < items.length - 1) {
-                setActiveItem(currentIndex + 1, true);
-            }
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            if (currentIndex > 0) {
-                setActiveItem(currentIndex - 1, true);
-            }
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (items[currentIndex]) {
-                openPersonCard(items[currentIndex]);
-            }
-        }
     });
 </script>
 </body>

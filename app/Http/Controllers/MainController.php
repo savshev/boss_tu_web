@@ -159,18 +159,17 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає детальну картку працівника з таблиці SQL_LALL.
+     * Відображає детальну картку працівника з таблиці SQL_LALL за полем PARTNER.
      */
-    public function personCard($id)
+    public function personCard($partner)
     {
-        // Шукаємо запис у SQL_LALL за унікальним ID або TAB_NOM
+        // Шукаємо запис у SQL_LALL за унікальним полем PARTNER
         $person = DB::table('SQL_LALL')
-            ->where('ID', $id)
-            ->orWhere('TAB_NOM', $id)
+            ->where('PARTNER', $partner)
             ->first();
 
         if (!$person) {
-            return redirect()->back()->with('error', 'Працівника не знайдено');
+            return redirect()->back()->with('error', 'Працівника з таким PARTNER не знайдено');
         }
 
         return view('person_card', compact('person'));
