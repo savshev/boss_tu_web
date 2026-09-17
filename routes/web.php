@@ -17,5 +17,5 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/working/list/{category}', [MainController::class, 'workingList'])->name('working.list');
     // Маршрут для перегляду картки працівника
     Route::get('/working/person/{id}', [MainController::class, 'personCard'])->name('working.person');
-});
+
 });
