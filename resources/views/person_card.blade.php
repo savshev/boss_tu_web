@@ -12,8 +12,11 @@
         /* Таблична сітка картки */
         .card-grid { display: grid; grid-template-columns: 180px 1fr; gap: 10px 20px; font-family: 'Courier New', monospace, sans-serif; font-size: 15px; align-items: start; }
 
-        .label-col { text-align: right; font-weight: bold; color: #555; }
-        .value-col { text-align: left; color: #111; line-height: 1.5; }
+        /* Ліва частина — звичайний шрифт */
+        .label-col { text-align: right; font-weight: normal; color: #555; }
+
+        /* Права частина — жирний шрифт */
+        .value-col { text-align: left; font-weight: bold; color: #111; line-height: 1.5; }
 
         /* Червоне виділення для боргу */
         .text-danger { color: #dc3545; font-weight: bold; }
@@ -76,7 +79,7 @@
         // Фіндопомога
         $sumFinHlp = (float) $getCol('SUM_FINHLP', 'SUMFINHLP');
 
-        // Путівки (перевіряємо різні варіанти колонок: SUMTOU_ALL або SUM_TOUALL)
+        // Путівки
         $cntTours  = (int) $getCol('CNT_TOURS', 'CNTTOURS');
         $sumTouAll = (float) $getCol('SUMTOU_ALL', 'SUM_TOUALL', 'SUM_TOU_ALL');
         $sumTouOpl = (float) $getCol('SUMTOU_OPL', 'SUM_TOUOPL', 'SUM_TOU_OPL');
