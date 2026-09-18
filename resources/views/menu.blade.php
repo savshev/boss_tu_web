@@ -47,7 +47,10 @@
         <a href="{{ route('veterans') }}" class="menu-btn interactive-btn">
             <span>Ветерани</span>
         </a>
-        <a href="#" class="menu-btn">Підрозділи</a>
+        <!-- Кнопка Підрозділи -->
+        <a href="{{ route('departments') }}" class="menu-btn interactive-btn">
+            <span>Підрозділи</span>
+        </a>
         <a href="#" class="menu-btn">Путівки</a>
         <a href="#" class="menu-btn">Фіндопомога</a>
         <a href="#" class="menu-btn">Позички</a>

@@ -21,4 +21,6 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/working/person/{partner}/details/{type}', [MainController::class, 'personDetails'])->name('working.person.details');
     // Розділ Ветерани
     Route::get('/veterans', [MainController::class, 'veteransList'])->name('veterans');
+    // Розділ Підрозділи
+    Route::get('/departments', [MainController::class, 'departmentsList'])->name('departments');
 });
