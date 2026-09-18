@@ -53,6 +53,11 @@
     </div>
 
     <a href="{{ route('main') }}" class="btn-back">← Назад</a>
+
+    <!-- Кнопка Ветераны -->
+    <a href="{{ route('veterans') }}" class="menu-btn interactive-btn">
+        <span>Ветерани</span>
+    </a>
 </div>
 </body>
 </html>
