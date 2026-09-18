@@ -97,9 +97,11 @@
     </div>
 
     <div class="action-buttons">
-        <!-- Компактна сіра кнопка з лупою -->
+        <!-- Компактная серая кнопка с лупой -->
         <button type="button" class="btn-search-icon" onclick="toggleSearch()" title="Швидкий пошук">🔍</button>
-        <a href="{{ route('working') }}" class="btn-back">← Назад до показників</a>
+
+        <!-- Динамическая кнопка возврата -->
+        <a href="{{ $backUrl ?? route('working') }}" class="btn-back">{{ $backLabel ?? '← Назад до показників' }}</a>
     </div>
 </div>
 

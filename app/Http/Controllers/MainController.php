@@ -159,17 +159,20 @@ class MainController extends Controller
 //    }
 
     /**
-     * Оновлений список працюючих з підтримкою категорій, підрозділів (departmn) та статі (sex).
+     * Список работающих с поддержкой категорий, подразделений (departmn) и пола (sex).
      */
     public function workingList(Request $request, $category)
     {
         $query = DB::table('SQL_LALL')->where('PREV', 0);
 
-        // Отримуємо параметри з URL (виправлено синтаксичну помилку)
         $departmn = $request->query('departmn');
         $sex = $request->query('sex');
 
-        // Якщо передано підрозділ
+        // По умолчанию возврат ведет в меню Работающих
+        $backUrl = route('working');
+        $backLabel = '← Назад до показників';
+
+        // Если перешли из раздела Подразделения
         if ($departmn !== null) {
             $query->where('DEPARTMN', $departmn);
             $dprtRecord = DB::table('SQL_DPRT')->where('DEPARTMN', $departmn)->first();
@@ -186,8 +189,12 @@ class MainController extends Controller
             } else {
                 $title = "{$dprtName} (Всього)";
             }
+
+            // Возврат ведем назад к списку Подразделений!
+            $backUrl = route('departments');
+            $backLabel = '← Назад до підрозділів';
         } else {
-            // Стандартна фільтрація за категоріями з головного меню працюючих
+            // Стандартная фильтрация по категориям из главного меню работающих
             if ($category === 'CNTENT_MEN') {
                 $query->where('DEPARTMN', '>', 0)->where('SEX', 1);
                 $title = 'Працюючі чоловіки';
@@ -202,7 +209,7 @@ class MainController extends Controller
 
         $people = $query->get();
 
-        return view('working_list', compact('people', 'title'));
+        return view('working_list', compact('people', 'title', 'backUrl', 'backLabel'));
     }
 
 
