@@ -142,7 +142,7 @@
 
         <!-- Путівки -->
         <div class="label-col">
-            @if($cntTours > 0 \vert{}\vert{}$sumTouAll > 0)
+            @if($cntTours > 0 || $sumTouAll > 0)
                 <button type="button" class="card-btn" onclick="showDetails('tour')">Путівки</button>
             @else
                 Путівки
