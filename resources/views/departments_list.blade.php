@@ -63,8 +63,9 @@
                 $countMen = (int)$getCol('COUNT_MEN');
                 $countWom = (int)$getCol('COUNT_WOM');
             @endphp
-            <div class="dprt-item {{ $index === 0 ? 'active' : '' }}"
+            <div class="dprt-item"
                  data-id="{{ $id }}"
+                 data-index="{{ $index }}"
                  data-name="{{ mb_strtolower($name) }}"
                  tabindex="0">
                 <div class="dprt-title">{{ $name !== '' ? $name : "Підрозділ #{$id}" }}</div>
@@ -117,9 +118,16 @@
         let items = Array.from(document.querySelectorAll('.dprt-item'));
         if (items.length === 0) return;
 
-        let currentIndex = 0;
+        // Відновлюємо збережений індекс підрозділу з сесії
+        let savedIndex = sessionStorage.getItem('active_dprt_index');
+        let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
-        function openDepartmentAll(item) {
+        if (isNaN(currentIndex) || currentIndex < 0 || currentIndex >= items.length) {
+            currentIndex = 0;
+        }
+
+        function openDepartmentAll(item, index) {
+            sessionStorage.setItem('active_dprt_index', index);
             const id = item.getAttribute('data-id');
             if (id) {
                 window.location.href = `/working/list/all?departmn=${id}`;
@@ -139,15 +147,26 @@
             const activeItem = visibleItems[currentIndex];
             activeItem.classList.add('active');
 
+            // Зберігаємо поточний індекс у сесії
+            const originalIndex = items.indexOf(activeItem);
+            if (originalIndex !== -1) {
+                sessionStorage.setItem('active_dprt_index', originalIndex);
+            }
+
             activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
+
+        // Запускаємо виділення та скрол до відновленого підрозділу
+        setTimeout(() => {
+            setActiveItem(currentIndex);
+        }, 50);
 
         window.toggleSearch = function() {
             if (searchBox.style.display === 'block') {
                 searchBox.style.display = 'none';
                 searchInput.value = '';
                 items.forEach(item => item.style.display = 'block');
-                setActiveItem(0);
+                setActiveItem(currentIndex);
             } else {
                 searchBox.style.display = 'block';
                 searchInput.focus();
@@ -169,10 +188,13 @@
             setActiveItem(0);
         });
 
-        items.forEach((item) => {
+        items.forEach((item, index) => {
             item.addEventListener('click', function (e) {
-                // Якщо клікнули безпосередньо по кнопці Чол/Жін/Всього, даємо спрацювати її посиланню
-                if (e.target.tagName === 'A') return;
+                // Якщо клікнули на конкретну кнопку Всього / Чол / Жін — зберігаємо індекс підрозділу
+                if (e.target.tagName === 'A') {
+                    sessionStorage.setItem('active_dprt_index', index);
+                    return;
+                }
 
                 const visibleItems = items.filter(i => i.style.display !== 'none');
                 const idx = visibleItems.indexOf(item);
@@ -181,7 +203,7 @@
 
             item.addEventListener('dblclick', function (e) {
                 if (e.target.tagName === 'A') return;
-                openDepartmentAll(item);
+                openDepartmentAll(item, index);
             });
         });
 
@@ -200,7 +222,7 @@
                 if (currentIndex > 0) setActiveItem(currentIndex - 1);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (visibleItems[currentIndex]) openDepartmentAll(visibleItems[currentIndex]);
+                if (visibleItems[currentIndex]) openDepartmentAll(visibleItems[currentIndex], items.indexOf(visibleItems[currentIndex]));
             }
         });
     });
