@@ -105,26 +105,35 @@
         $sumKredit = (float) $getCol('SUM_KREDIT', 'SUMKREDIT');
         $sumRedem  = (float) $getCol('SUM_REDEM', 'SUMREDEM');
         $sumTail   = (float) $getCol('SUM_TAIL', 'SUMTAIL');
+
+        // Визначаємо, чи це працюючий (departmn > 0) чи ветеран (departmn == 0)
+        $departmn = (int) $getCol('DEPARTMN');
+        $isWorking = $departmn > 0;
     @endphp
 
     <div class="card-grid">
+        <!-- ПІБ завжди є -->
         <div class="label-col">ПІБ</div>
         <div class="value-col">{{ $fio !== '' ? $fio : '-' }}</div>
 
-        <div class="label-col">Таб. номер</div>
-        <div class="value-col">{{ $tabNom !== '' ? $tabNom : '-' }}</div>
+        <!-- Ці 4 поля показуємо ТІЛЬКИ ДЛЯ ПРАЦЮЮЧИХ -->
+        @if($isWorking)
+            <div class="label-col">Таб. номер</div>
+            <div class="value-col">{{ $tabNom !== '' ? $tabNom : '-' }}</div>
 
-        <div class="label-col">Прийнятий</div>
-        <div class="value-col">{{ $dateWork0 !== '' ? $dateWork0 : '-' }}</div>
+            <div class="label-col">Прийнятий</div>
+            <div class="value-col">{{ $dateWork0 !== '' ? $dateWork0 : '-' }}</div>
 
-        <div class="label-col">Підрозділ</div>
-        <div class="value-col">{{ $dprtInfo !== '' ? $dprtInfo : '-' }}</div>
+            <div class="label-col">Підрозділ</div>
+            <div class="value-col">{{ $dprtInfo !== '' ? $dprtInfo : '-' }}</div>
 
-        <div class="label-col">Посада</div>
-        <div class="value-col">{{ $profInfo !== '' ? $profInfo : '-' }}</div>
+            <div class="label-col">Посада</div>
+            <div class="value-col">{{ $profInfo !== '' ? $profInfo : '-' }}</div>
 
-        <div class="grid-divider"></div>
+            <div class="grid-divider"></div>
+        @endif
 
+        <!-- Решта показників для ВСІХ (День нар, Телефон, Фіндопомога, Путівки, Позички) -->
         <div class="label-col">День нар.</div>
         <div class="value-col">{{ $dateBirth !== '' ? $dateBirth : '-' }}</div>
 

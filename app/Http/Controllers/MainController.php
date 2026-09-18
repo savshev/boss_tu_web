@@ -237,4 +237,19 @@ class MainController extends Controller
         ]);
     }
 
+    /**
+     * Відображає список ветеранів (PREV = 0 та DEPARTMN = 0).
+     */
+    public function veteransList(Request $request)
+    {
+        $people = DB::table('SQL_LALL')
+            ->where('PREV', 0)
+            ->where('DEPARTMN', 0)
+            ->get();
+
+        $title = 'Список ветеранів';
+
+        return view('veterans_list', compact('people', 'title'));
+    }
+
 }
