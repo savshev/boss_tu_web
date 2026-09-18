@@ -43,7 +43,12 @@
     <div class="menu-grid">
         <!-- 8 нових розділів -->
         <a href="{{ route('working') }}" class="menu-btn">Працюючі</a>
-        <a href="#" class="menu-btn">Ветерани</a>
+{{--        <a href="#" class="menu-btn">Ветерани</a>--}}
+        <!-- Кнопка Ветераны -->
+        <a href="{{ route('veterans') }}" class="menu-btn interactive-btn">
+            <span>Ветерани</span>
+        </a>
+
         <a href="#" class="menu-btn">Підрозділи</a>
         <a href="#" class="menu-btn">Путівки</a>
         <a href="#" class="menu-btn">Фіндопомога</a>
@@ -53,11 +58,6 @@
     </div>
 
     <a href="{{ route('main') }}" class="btn-back">← Назад</a>
-
-    <!-- Кнопка Ветераны -->
-    <a href="{{ route('veterans') }}" class="menu-btn interactive-btn">
-        <span>Ветерани</span>
-    </a>
 </div>
 </body>
 </html>
