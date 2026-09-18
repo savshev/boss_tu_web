@@ -165,14 +165,17 @@ class MainController extends Controller
     {
         $query = DB::table('SQL_LALL')->where('PREV', 0);
 
-        $departmn = $request foreclose = $request->query('departmn');
+        // Отримуємо параметри з URL (виправлено синтаксичну помилку)
+        $departmn = $request->query('departmn');
         $sex = $request->query('sex');
 
         // Якщо передано підрозділ
         if ($departmn !== null) {
             $query->where('DEPARTMN', $departmn);
             $dprtRecord = DB::table('SQL_DPRT')->where('DEPARTMN', $departmn)->first();
-            $dprtName = $dprtRecord ? trim($dprtRecord->DPRT_INFO ?? $dprtRecord->dprt_info ?? '') : "Підрозділ #{$departmn}";
+
+            $arrDprt = (array) $dprtRecord;
+            $dprtName = $dprtRecord ? trim((string)($arrDprt['DPRT_INFO'] ?? $arrDprt['dprt_info'] ?? '')) : "Підрозділ #{$departmn}";
 
             if ($sex == 1) {
                 $query->where('SEX', 1);
