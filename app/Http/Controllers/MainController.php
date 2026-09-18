@@ -312,6 +312,7 @@ class MainController extends Controller
      */
     public function departmentsList()
     {
+        // Отримуємо всі записи з SQL_DPRT
         $departments = DB::table('SQL_DPRT')->get();
         $title = 'Підрозділи';
 
