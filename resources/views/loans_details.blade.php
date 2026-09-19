@@ -27,7 +27,7 @@
             transition: background-color 0.15s ease;
             outline: none;
             display: grid;
-            grid-template-columns: 90px 1fr auto;
+            grid-template-columns: 90px 1fr 240px;
             gap: 15px;
             align-items: center;
         }
@@ -36,9 +36,12 @@
 
         .col-tabnom { text-align: right; font-weight: bold; color: #007bff; }
         .col-fam { text-align: left; font-weight: bold; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .col-summary { text-align: left; font-weight: bold; color: #222; }
 
-        .text-danger { color: #dc3545 !important; font-weight: bold; margin-left: 8px; }
+        /* Вертикальный контейнер для 2-х строк показателей */
+        .col-summary { text-align: left; font-weight: bold; color: #222; display: flex; flex-direction: column; justify-content: center; gap: 3px; }
+
+        /* Вторая строка с долгом красным цветом */
+        .text-danger { color: #dc3545 !important; font-weight: bold; font-size: 13px; }
         .text-dismissed { color: #888888 !important; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
@@ -81,10 +84,12 @@
 
                 <div class="col-tabnom {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $tabDisplay }}</div>
                 <div class="col-fam {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $fam !== '' ?$fam : 'ПІБ не вказано' }}</div>
+
                 <div class="col-summary">
-                    {{ $countVal }} на суму {{ $fmtSumma }} грн
+                    <div>{{ $countVal }} на суму {{ $fmtSumma }} грн</div>
+                    <!-- Дополнительная строка долга, если SUM_TAIL > 0 -->
                     @if($sumTailVal > 0)
-                        <span class="text-danger">борг {{ $fmtTail }} грн</span>
+                        <div class="text-danger">на сьогодні борг {{ $fmtTail }} грн</div>
                     @endif
                 </div>
             </div>
