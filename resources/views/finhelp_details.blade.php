@@ -9,12 +9,14 @@
         .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 750px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
+        /* Панель пошуку */
         .search-box { display: none; margin-bottom: 12px; flex-shrink: 0; }
         .search-input { width: 100%; padding: 9px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
         .search-input:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
 
         .details-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
+        /* Таблична сітка елементів списку */
         .detail-item {
             background: #f8f9fa;
             border-left: 4px solid #ced4da;
@@ -34,12 +36,12 @@
         .detail-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .detail-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
+        /* Стилі колонок та вирівнювання */
         .col-tabnom { text-align: right; font-weight: bold; color: #007bff; }
         .col-fam { text-align: left; font-weight: bold; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-
-        /* Выравнивание суммы и количества ПО ЛЕВОМУ КРАЮ */
         .col-summary { text-align: left; font-weight: bold; color: #222; }
 
+        /* Сірий колір для звільнених людей */
         .text-dismissed { color: #888888 !important; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
@@ -73,13 +75,13 @@
             <div class="detail-item {{ $index === 0 ? 'active' : '' }}"
                  data-partner="{{ $partnerVal }}"
                  data-fam="{{ mb_strtolower($fam) }}"
+                 data-fam-raw="{{ $fam !== '' ?$fam : 'Працівника' }}"
                  data-tabnom="{{ $tabNomRaw }}"
+                 data-prev="{{ $prevVal }}"
                  tabindex="0">
 
                 <div class="col-tabnom {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $tabDisplay }}</div>
                 <div class="col-fam {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $fam !== '' ?$fam : 'ПІБ не вказано' }}</div>
-
-                <!-- Выравнивание ПО ЛЕВОМУ КРАЮ -->
                 <div class="col-summary">{{ $countVal }} на суму {{ $fmtSumma }} грн</div>
             </div>
         @empty
@@ -104,8 +106,17 @@
 
         let currentIndex = 0;
 
+        // Відкриття картки або виведення сповіщення для звільнених
         function openPersonCard(item) {
             const partner = item.getAttribute('data-partner');
+            const prev = parseInt(item.getAttribute('data-prev') || '0', 10);
+            const fam = item.getAttribute('data-fam-raw') || '';
+
+            if (prev > 0) {
+                alert(`${fam} звільнено!`);
+                return;
+            }
+
             if (partner) {
                 window.location.href = `/working/person/${partner}`;
             }

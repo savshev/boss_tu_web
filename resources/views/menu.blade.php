@@ -62,7 +62,12 @@
             <span>Фіндопомога</span>
         </a>
 
-        <a href="#" class="menu-btn">Позики</a>
+        <!-- Кнопка Позики -->
+        <a href="{{ route('loans') }}" class="menu-btn interactive-btn">
+            <span>Позики</span>
+        </a>
+
+
         <a href="#" class="menu-btn">Чисельність та внески</a>
         <a href="#" class="menu-btn">Доходи та витрати</a>
     </div>

@@ -416,4 +416,40 @@ class MainController extends Controller
 
         return view('tours_people', compact('records', 'title', 'year', 'sprtrs'));
     }
+
+    /**
+     * Отображает список лет займов с группировкой по YEAR из SQL_SVKR.
+     */
+    public function loansYears()
+    {
+        $yearsData = DB::table('SQL_SVKR')
+            ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
+            ->groupBy('YEAR')
+            ->orderBy('YEAR', 'desc')
+            ->get();
+
+        $title = 'Позики за роками';
+
+        return view('loans_years', compact('yearsData', 'title'));
+    }
+
+    /**
+     * Отображает детализированный список займов за выбранный год.
+     */
+    public function loansYearDetails($year)
+    {
+        $records = DB::table('SQL_SVKR')
+            ->leftJoin('SQL_LALL', 'SQL_SVKR.PARTNER', '=', 'SQL_LALL.PARTNER')
+            ->where('SQL_SVKR.YEAR', $year)
+            ->select(
+                'SQL_SVKR.*',
+                'SQL_LALL.PREV as LALL_PREV'
+            )
+            ->orderBy('SQL_SVKR.FAM_RUS', 'asc')
+            ->get();
+
+        $title = "Позики за {$year} рік";
+
+        return view('loans_details', compact('records', 'title', 'year'));
+    }
 }

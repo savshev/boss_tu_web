@@ -30,4 +30,7 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/tours', [MainController::class, 'toursYears'])->name('tours');
     Route::get('/tours/year/{year}', [MainController::class, 'toursYearResorts'])->name('tours.year');
     Route::get('/tours/year/{year}/resort/{sprtrs}', [MainController::class, 'toursResortPeople'])->name('tours.resort');
+    // Раздел Позики
+    Route::get('/loans', [MainController::class, 'loansYears'])->name('loans');
+    Route::get('/loans/year/{year}', [MainController::class, 'loansYearDetails'])->name('loans.year');
 });
