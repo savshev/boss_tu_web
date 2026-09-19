@@ -23,4 +23,7 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/veterans', [MainController::class, 'veteransList'])->name('veterans');
     // Розділ Підрозділи
     Route::get('/departments', [MainController::class, 'departmentsList'])->name('departments');
+    // Розділ Фіндопомога
+    Route::get('/finhelp', [MainController::class, 'finhelpYears'])->name('finhelp');
+    Route::get('/finhelp/year/{year}', [MainController::class, 'finhelpYearDetails'])->name('finhelp.year');
 });

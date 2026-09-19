@@ -51,8 +51,14 @@
         <a href="{{ route('departments') }}" class="menu-btn interactive-btn">
             <span>Підрозділи</span>
         </a>
+
         <a href="#" class="menu-btn">Путівки</a>
-        <a href="#" class="menu-btn">Фіндопомога</a>
+
+        <!-- Кнопка Фіндопомоги -->
+        <a href="{{ route('finhelp') }}" class="menu-btn interactive-btn">
+            <span>Фіндопомога</span>
+        </a>
+
         <a href="#" class="menu-btn">Позички</a>
         <a href="#" class="menu-btn">Чисельність та внески</a>
         <a href="#" class="menu-btn">Доходи та витрати</a>

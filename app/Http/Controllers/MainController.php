@@ -319,4 +319,40 @@ class MainController extends Controller
         return view('departments_list', compact('departments', 'title'));
     }
 
+    /**
+     * Відображає список років фіндопомоги з групуванням по YEAR.
+     */
+    public function finhelpYears()
+    {
+        $yearsData = DB::table('SQL_SFIN')
+            ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
+            ->groupBy('YEAR')
+            ->orderBy('YEAR', 'desc')
+            ->get();
+
+        $title = 'Фіндопомога за роками';
+
+        return view('finhelp_years', compact('yearsData', 'title'));
+    }
+
+    /**
+     * Відображає деталізований список отриманих фіндопомог у вибраному році.
+     */
+    public function finhelpYearDetails($year)
+    {
+        $records = DB::table('SQL_SFIN')
+            ->leftJoin('SQL_LALL', 'SQL_SFIN.PARTNER', '=', 'SQL_LALL.PARTNER')
+            ->where('SQL_SFIN.YEAR', $year)
+            ->select(
+                'SQL_SFIN.*',
+                'SQL_LALL.PREV as LALL_PREV',
+                'SQL_LALL.DEPARTMN as LALL_DEPARTMN'
+            )
+            ->orderBy('SQL_SFIN.FAM_RUS', 'asc')
+            ->get();
+
+        $title = "Фіндопомога за {$year} рік";
+
+        return view('finhelp_details', compact('records', 'title', 'year'));
+    }
 }
