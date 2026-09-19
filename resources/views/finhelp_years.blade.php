@@ -15,12 +15,30 @@
 
         .years-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
-        .year-item { background: #f8f9fa; border-left: 4px solid #ced4da; border-radius: 6px; padding: 12px 15px; margin-bottom: 10px; font-family: 'Courier New', monospace, sans-serif; cursor: pointer; transition: background-color 0.15s ease; outline: none; display: flex; justify-content: space-between; align-items: center; font-size: 15px; }
+        /* Сетка для выравнивания колонок года и показателей */
+        .year-item {
+            background: #f8f9fa;
+            border-left: 4px solid #ced4da;
+            border-radius: 6px;
+            padding: 12px 15px;
+            margin-bottom: 10px;
+            font-family: 'Courier New', monospace, sans-serif;
+            cursor: pointer;
+            transition: background-color 0.15s ease;
+            outline: none;
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 15px;
+            align-items: center;
+            font-size: 15px;
+        }
         .year-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        .year-title { font-weight: bold; font-size: 17px; color: #007bff; }
-        .year-stats { font-weight: bold; color: #222; }
+        .year-title { font-weight: bold; font-size: 17px; color: #007bff; text-align: left; }
+
+        /* Выравнивание показателей ПО ЛЕВОМУ КРАЮ */
+        .year-stats { font-weight: bold; color: #222; text-align: left; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
         .btn-search-icon { width: 44px; height: 44px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
@@ -50,7 +68,8 @@
                  data-year="{{ $yearVal }}"
                  tabindex="0">
                 <div class="year-title">{{ $yearVal }} рік</div>
-                <div class="year-stats">Кількість: {{ $countVal }} \vert{} Сума: {{ $fmtSumma }} грн</div>
+                <!-- Новый формат строки без лишних символов и с выравниванием влево -->
+                <div class="year-stats">{{ $countVal }} на суму: {{ $fmtSumma }} грн</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
@@ -101,7 +120,7 @@
             if (searchBox.style.display === 'block') {
                 searchBox.style.display = 'none';
                 searchInput.value = '';
-                items.forEach(item => item.style.display = 'flex');
+                items.forEach(item => item.style.display = 'grid');
                 setActiveItem(0);
             } else {
                 searchBox.style.display = 'block';
@@ -115,7 +134,7 @@
             items.forEach(item => {
                 const year = item.getAttribute('data-year') || '';
                 if (year.includes(query)) {
-                    item.style.display = 'flex';
+                    item.style.display = 'grid';
                 } else {
                     item.style.display = 'none';
                 }

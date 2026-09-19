@@ -15,7 +15,6 @@
 
         .details-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
-        /* Рядок на моноширинному шрифті з чіткими колонками */
         .detail-item {
             background: #f8f9fa;
             border-left: 4px solid #ced4da;
@@ -28,19 +27,19 @@
             transition: background-color 0.15s ease;
             outline: none;
             display: grid;
-            grid-template-columns: 90px 1fr 180px;
+            grid-template-columns: 90px 1fr 200px;
             gap: 15px;
             align-items: center;
         }
         .detail-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .detail-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        /* Вирівнювання колонок */
         .col-tabnom { text-align: right; font-weight: bold; color: #007bff; }
         .col-fam { text-align: left; font-weight: bold; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .col-summary { text-align: right; font-weight: bold; color: #222; }
 
-        /* Сірий колір для звільнених людей (PREV > 0) */
+        /* Выравнивание суммы и количества ПО ЛЕВОМУ КРАЮ */
+        .col-summary { text-align: left; font-weight: bold; color: #222; }
+
         .text-dismissed { color: #888888 !important; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
@@ -77,13 +76,10 @@
                  data-tabnom="{{ $tabNomRaw }}"
                  tabindex="0">
 
-                <!-- Табельний номер або "Ветеран" (вирівнювання праворуч) -->
                 <div class="col-tabnom {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $tabDisplay }}</div>
-
-                <!-- Прізвище Ім'я (вирівнювання ліворуч) -->
                 <div class="col-fam {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $fam !== '' ?$fam : 'ПІБ не вказано' }}</div>
 
-                <!-- Кількість та сума (вирівнювання праворуч) -->
+                <!-- Выравнивание ПО ЛЕВОМУ КРАЮ -->
                 <div class="col-summary">{{ $countVal }} на суму {{ $fmtSumma }} грн</div>
             </div>
         @empty
