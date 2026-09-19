@@ -15,7 +15,6 @@
 
         .years-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
-        /* Сетка для выравнивания колонок года и показателей */
         .year-item {
             background: #f8f9fa;
             border-left: 4px solid #ced4da;
@@ -36,8 +35,6 @@
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
         .year-title { font-weight: bold; font-size: 17px; color: #007bff; text-align: left; }
-
-        /* Выравнивание показателей ПО ЛЕВОМУ КРАЮ */
         .year-stats { font-weight: bold; color: #222; text-align: left; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
@@ -57,18 +54,19 @@
     </div>
 
     <div class="years-list" id="yearsList" tabindex="0">
-        @forelse($yearsData as $index =>$row)
+        @forelse($yearsData as $index => $row)
             @php
-                $arr = (array)$row;
+                $arr = (array) $row;
                 $yearVal  = trim((string)($arr['YEAR'] ?? $arr['year'] ?? ''));
-                $summaVal = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);$countVal = (int) ($arr['COUNT'] ?? $arr['count'] ?? 0);
+                $summaVal = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);
+                $countVal = (int) ($arr['COUNT'] ?? $arr['count'] ?? 0);
                 $fmtSumma = number_format($summaVal, 2, '.', '');
             @endphp
-            <div class="year-item {{ $index === 0 ? 'active' : '' }}"
+            <div class="year-item"
                  data-year="{{ $yearVal }}"
+                 data-index="{{ $index }}"
                  tabindex="0">
                 <div class="year-title">{{ $yearVal }} рік</div>
-                <!-- Новый формат строки без лишних символов и с выравниванием влево -->
                 <div class="year-stats">{{ $countVal }} на суму: {{ $fmtSumma }} грн</div>
             </div>
         @empty
@@ -91,16 +89,22 @@
         let items = Array.from(document.querySelectorAll('.year-item'));
         if (items.length === 0) return;
 
-        let currentIndex = 0;
+        let savedIndex = sessionStorage.getItem('active_finh_year_index');
+        let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
-        function openYearDetails(item) {
+        if (isNaN(currentIndex) || currentIndex < 0 || currentIndex >= items.length) {
+            currentIndex = 0;
+        }
+
+        function openYearDetails(item, index) {
+            sessionStorage.setItem('active_finh_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
                 window.location.href = `/finhelp/year/${year}`;
             }
         }
 
-        function setActiveItem(index) {
+        function setActiveItem(index, isInitial = false) {
             const visibleItems = items.filter(item => item.style.display !== 'none');
             if (visibleItems.length === 0) return;
 
@@ -113,15 +117,27 @@
             const activeItem = visibleItems[currentIndex];
             activeItem.classList.add('active');
 
-            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const originalIndex = items.indexOf(activeItem);
+            if (originalIndex !== -1) {
+                sessionStorage.setItem('active_finh_year_index', originalIndex);
+            }
+
+            activeItem.scrollIntoView({
+                behavior: isInitial ? 'auto' : 'smooth',
+                block: isInitial ? 'center' : 'nearest'
+            });
         }
+
+        setTimeout(() => {
+            setActiveItem(currentIndex, true);
+        }, 50);
 
         window.toggleSearch = function() {
             if (searchBox.style.display === 'block') {
                 searchBox.style.display = 'none';
                 searchInput.value = '';
                 items.forEach(item => item.style.display = 'grid');
-                setActiveItem(0);
+                setActiveItem(currentIndex, true);
             } else {
                 searchBox.style.display = 'block';
                 searchInput.focus();
@@ -140,18 +156,18 @@
                 }
             });
 
-            setActiveItem(0);
+            setActiveItem(0, true);
         });
 
-        items.forEach((item) => {
+        items.forEach((item, index) => {
             item.addEventListener('click', function () {
                 const visibleItems = items.filter(i => i.style.display !== 'none');
                 const idx = visibleItems.indexOf(item);
-                if (idx !== -1) setActiveItem(idx);
+                if (idx !== -1) setActiveItem(idx, false);
             });
 
             item.addEventListener('dblclick', function () {
-                openYearDetails(item);
+                openYearDetails(item, index);
             });
         });
 
@@ -164,13 +180,13 @@
 
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1);
+                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1, false);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (currentIndex > 0) setActiveItem(currentIndex - 1);
+                if (currentIndex > 0) setActiveItem(currentIndex - 1, false);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (visibleItems[currentIndex]) openYearDetails(visibleItems[currentIndex]);
+                if (visibleItems[currentIndex]) openYearDetails(visibleItems[currentIndex], items.indexOf(visibleItems[currentIndex]));
             }
         });
     });

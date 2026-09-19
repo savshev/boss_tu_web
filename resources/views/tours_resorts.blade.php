@@ -60,8 +60,9 @@
                 $countVal   = (int) ($arr['COUNT'] ?? $arr['count'] ?? 0);$summaVal   = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);
                 $fmtSumma   = number_format($summaVal, 2, '.', '');
             @endphp
-            <div class="resort-item {{ $index === 0 ? 'active' : '' }}"
+            <div class="resort-item"
                  data-sprtrs="{{ $sprtrsVal }}"
+                 data-index="{{ $index }}"
                  data-info="{{ mb_strtolower($tourInfo . ' ' .$fndoInfo) }}"
                  tabindex="0">
                 <div class="resort-title">{{ $tourInfo !== '' ?$tourInfo : 'Назва закладу не вказана' }}</div>
@@ -90,16 +91,22 @@
         let items = Array.from(document.querySelectorAll('.resort-item'));
         if (items.length === 0) return;
 
-        let currentIndex = 0;
+        let savedIndex = sessionStorage.getItem('active_tour_resort_index');
+        let currentIndex = savedIndex !== null ? parseInt(savedIndex, 10) : 0;
 
-        function openResortPeople(item) {
+        if (isNaN(currentIndex) || currentIndex < 0 || currentIndex >= items.length) {
+            currentIndex = 0;
+        }
+
+        function openResortPeople(item, index) {
+            sessionStorage.setItem('active_tour_resort_index', index);
             const sprtrs = item.getAttribute('data-sprtrs');
             if (sprtrs) {
                 window.location.href = `/tours/year/{{ $year }}/resort/${sprtrs}`;
             }
         }
 
-        function setActiveItem(index) {
+        function setActiveItem(index, isInitial = false) {
             const visibleItems = items.filter(item => item.style.display !== 'none');
             if (visibleItems.length === 0) return;
 
@@ -112,15 +119,27 @@
             const activeItem = visibleItems[currentIndex];
             activeItem.classList.add('active');
 
-            activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            const originalIndex = items.indexOf(activeItem);
+            if (originalIndex !== -1) {
+                sessionStorage.setItem('active_tour_resort_index', originalIndex);
+            }
+
+            activeItem.scrollIntoView({
+                behavior: isInitial ? 'auto' : 'smooth',
+                block: isInitial ? 'center' : 'nearest'
+            });
         }
+
+        setTimeout(() => {
+            setActiveItem(currentIndex, true);
+        }, 50);
 
         window.toggleSearch = function() {
             if (searchBox.style.display === 'block') {
                 searchBox.style.display = 'none';
                 searchInput.value = '';
                 items.forEach(item => item.style.display = 'block');
-                setActiveItem(0);
+                setActiveItem(currentIndex, true);
             } else {
                 searchBox.style.display = 'block';
                 searchInput.focus();
@@ -139,18 +158,18 @@
                 }
             });
 
-            setActiveItem(0);
+            setActiveItem(0, true);
         });
 
-        items.forEach((item) => {
+        items.forEach((item, index) => {
             item.addEventListener('click', function () {
                 const visibleItems = items.filter(i => i.style.display !== 'none');
                 const idx = visibleItems.indexOf(item);
-                if (idx !== -1) setActiveItem(idx);
+                if (idx !== -1) setActiveItem(idx, false);
             });
 
             item.addEventListener('dblclick', function () {
-                openResortPeople(item);
+                openResortPeople(item, index);
             });
         });
 
@@ -163,13 +182,13 @@
 
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1);
+                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1, false);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (currentIndex > 0) setActiveItem(currentIndex - 1);
+                if (currentIndex > 0) setActiveItem(currentIndex - 1, false);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (visibleItems[currentIndex]) openResortPeople(visibleItems[currentIndex]);
+                if (visibleItems[currentIndex]) openResortPeople(visibleItems[currentIndex], items.indexOf(visibleItems[currentIndex]));
             }
         });
     });
