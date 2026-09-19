@@ -52,7 +52,10 @@
             <span>Підрозділи</span>
         </a>
 
-        <a href="#" class="menu-btn">Путівки</a>
+        <!-- Кнопка Путівки -->
+        <a href="{{ route('tours') }}" class="menu-btn interactive-btn">
+            <span>Путівки</span>
+        </a>
 
         <!-- Кнопка Фіндопомоги -->
         <a href="{{ route('finhelp') }}" class="menu-btn interactive-btn">

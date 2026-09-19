@@ -355,4 +355,65 @@ class MainController extends Controller
 
         return view('finhelp_details', compact('records', 'title', 'year'));
     }
+
+    /**
+     * Рівень 1: Групування путівок за роками з таблиці SQL_TDET.
+     */
+    public function toursYears()
+    {
+        $yearsData = DB::table('SQL_TDET')
+            ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
+            ->groupBy('YEAR')
+            ->orderBy('YEAR', 'desc')
+            ->get();
+
+        $title = 'Путівки за роками';
+
+        return view('tours_years', compact('yearsData', 'title'));
+    }
+
+    /**
+     * Рівень 2: Список закладів путівок у вибраному році з SQL_TDET.
+     */
+    public function toursYearResorts($year)
+    {
+        $resorts = DB::table('SQL_TDET')
+            ->where('YEAR', $year)
+            ->orderBy('TOUR_INFO', 'asc')
+            ->get();
+
+        $title = "Путівки за {$year} рік (Заклади)";
+
+        return view('tours_resorts', compact('resorts', 'title', 'year'));
+    }
+
+    /**
+     * Рівень 3: Список осіб, які отримали путівки до конкретного закладу з SQL_STOU.
+     */
+    public function toursResortPeople($year, $sprtrs)
+    {
+        $records = DB::table('SQL_STOU')
+            ->leftJoin('SQL_LALL', 'SQL_STOU.PARTNER', '=', 'SQL_LALL.PARTNER')
+            ->where('SQL_STOU.YEAR', $year)
+            ->where('SQL_STOU.SPRTRS', $sprtrs)
+            ->select(
+                'SQL_STOU.*',
+                'SQL_LALL.PREV as LALL_PREV'
+            )
+            ->orderBy('SQL_STOU.FAM_RUS', 'asc')
+            ->get();
+
+        // Отримуємо назву закладу для заголовка
+        $resortRecord = DB::table('SQL_TDET')
+            ->where('YEAR', $year)
+            ->where('SPRTRS', $sprtrs)
+            ->first();
+
+        $arrR = (array) $resortRecord;
+        $resortName = $resortRecord ? trim((string)($arrR['TOUR_INFO'] ?? $arrR['tour_info'] ?? '')) : "Заклад #{$sprtrs}";
+
+        $title = "Путівки {$year} рік: {$resortName}";
+
+        return view('tours_people', compact('records', 'title', 'year', 'sprtrs'));
+    }
 }

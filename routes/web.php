@@ -26,4 +26,8 @@ Route::middleware(['tenant.db'])->group(function () {
     // Розділ Фіндопомога
     Route::get('/finhelp', [MainController::class, 'finhelpYears'])->name('finhelp');
     Route::get('/finhelp/year/{year}', [MainController::class, 'finhelpYearDetails'])->name('finhelp.year');
+    // Розділ Путівки (3 рівні)
+    Route::get('/tours', [MainController::class, 'toursYears'])->name('tours');
+    Route::get('/tours/year/{year}', [MainController::class, 'toursYearResorts'])->name('tours.year');
+    Route::get('/tours/year/{year}/resort/{sprtrs}', [MainController::class, 'toursResortPeople'])->name('tours.resort');
 });
