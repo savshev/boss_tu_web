@@ -72,7 +72,7 @@ class MainController extends Controller
             'CNTENT_WOM'  => 'жінок',
             'COUNT_TOUR'  => 'Отримали путівки',
             'COUNT_FINH'  => 'фіндопомогу',
-            'COUNT_KRED'  => 'позички',
+            'COUNT_KRED'  => 'Позики',
             'COUNT_20'    => 'Віком: до 20 років',
             'COUNT_25'    => '20 - 25 років',
             'COUNT_30'    => '25 - 30 років',
@@ -112,7 +112,7 @@ class MainController extends Controller
 //            'CNTENT_WOM'  => 'Список працюючих: Жінки',
 //            'COUNT_TOUR'  => 'Працівники, які отримали путівки',
 //            'COUNT_FINH'  => 'Працівники, які отримали фіндопомогу',
-//            'COUNT_KRED'  => 'Працівники, які отримали позички',
+//            'COUNT_KRED'  => 'Працівники, які отримали Позики',
 //            'COUNT_20'    => 'Працівники віком до 20 років',
 //            'COUNT_25'    => 'Працівники віком 20 - 25 років',
 //            'COUNT_30'    => 'Працівники віком 25 - 30 років',
@@ -268,7 +268,7 @@ class MainController extends Controller
                 ];
             }
         } elseif ($type === 'vkre') {
-            // Позички z SQL_VKRE
+            // Позики z SQL_VKRE
             $records = DB::table('SQL_VKRE')->where('PARTNER', $partner)->get();
             foreach ($records as $r) {
                 $arr = (array) $r;

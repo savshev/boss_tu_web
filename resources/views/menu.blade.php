@@ -62,7 +62,7 @@
             <span>Фіндопомога</span>
         </a>
 
-        <a href="#" class="menu-btn">Позички</a>
+        <a href="#" class="menu-btn">Позики</a>
         <a href="#" class="menu-btn">Чисельність та внески</a>
         <a href="#" class="menu-btn">Доходи та витрати</a>
     </div>

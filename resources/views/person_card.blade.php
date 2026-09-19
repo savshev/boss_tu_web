@@ -152,12 +152,12 @@
             {{ ($cntTours > 0 || $sumTouAll > 0) ? "{$cntTours} на суму " . $fmtMoney($sumTouAll) . " грн, сплачено " . $fmtMoney($sumTouOpl) . " грн" : '-' }}
         </div>
 
-        <!-- Позички -->
+        <!-- Позики -->
         <div class="label-col">
             @if($sumKredit > 0)
-                <button type="button" class="card-btn" onclick="showDetails('vkre')">Позички</button>
+                <button type="button" class="card-btn" onclick="showDetails('vkre')">Позики</button>
             @else
-                Позички
+                Позики
             @endif
         </div>
         <div class="value-col">
@@ -176,7 +176,7 @@
     <a href="javascript:history.back()" class="btn-back">← Назад до списку</a>
 </div>
 
-<!-- Модальне вікно деталей (Фіндопомога, Путівки, Позички) -->
+<!-- Модальне вікно деталей (Фіндопомога, Путівки, Позики) -->
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
         <div class="modal-header" id="modalTitle">Деталізація</div>
