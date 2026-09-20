@@ -11,10 +11,6 @@
         .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 750px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
-        .search-box { display: none; margin-bottom: 12px; flex-shrink: 0; }
-        .search-input { width: 100%; padding: 9px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
-        .search-input:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
-
         .years-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
         .year-item {
@@ -59,10 +55,6 @@
 <div class="card">
     <h2>{{ $title }}</h2>
 
-    <div class="search-box" id="searchBox">
-        <input type="text" id="searchInput" class="search-input" placeholder="Пошук року..." autocomplete="off">
-    </div>
-
     <div class="years-list" id="yearsList" tabindex="0">
         @forelse($yearsData as $index =>$row)
             @php
@@ -90,7 +82,6 @@
     </div>
 
     <div class="action-buttons">
-        <button type="button" class="btn-icon" onclick="toggleSearch()" title="Швидкий пошук">🔍</button>
         <button type="button" class="btn-icon" onclick="openChartModal()" title="Графік динаміки">📊</button>
         <a href="{{ route('main.next') }}" class="btn-back">← Назад до меню</a>
     </div>
@@ -111,8 +102,6 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const searchBox = document.getElementById('searchBox');
-        const searchInput = document.getElementById('searchInput');
         let items = Array.from(document.querySelectorAll('.year-item'));
         if (items.length === 0) return;
 
@@ -132,22 +121,16 @@
         }
 
         function setActiveItem(index, isInitial = false) {
-            const visibleItems = items.filter(item => item.style.display !== 'none');
-            if (visibleItems.length === 0) return;
-
             items.forEach(item => item.classList.remove('active'));
 
             if (index < 0) index = 0;
-            if (index >= visibleItems.length) index = visibleItems.length - 1;
+            if (index >= items.length) index = items.length - 1;
 
             currentIndex = index;
-            const activeItem = visibleItems[currentIndex];
+            const activeItem = items[currentIndex];
             activeItem.classList.add('active');
 
-            const originalIndex = items.indexOf(activeItem);
-            if (originalIndex !== -1) {
-                sessionStorage.setItem('active_vzcn_year_index', originalIndex);
-            }
+            sessionStorage.setItem('active_vzcn_year_index', currentIndex);
 
             activeItem.scrollIntoView({
                 behavior: isInitial ? 'auto' : 'smooth',
@@ -159,38 +142,9 @@
             setActiveItem(currentIndex, true);
         }, 50);
 
-        window.toggleSearch = function() {
-            if (searchBox.style.display === 'block') {
-                searchBox.style.display = 'none';
-                searchInput.value = '';
-                items.forEach(item => item.style.display = 'grid');
-                setActiveItem(currentIndex, true);
-            } else {
-                searchBox.style.display = 'block';
-                searchInput.focus();
-            }
-        };
-
-        searchInput.addEventListener('input', function () {
-            const query = this.value.trim().toLowerCase();
-
-            items.forEach(item => {
-                const year = item.getAttribute('data-year') || '';
-                if (year.includes(query)) {
-                    item.style.display = 'grid';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            setActiveItem(0, true);
-        });
-
         items.forEach((item, index) => {
             item.addEventListener('click', function () {
-                const visibleItems = items.filter(i => i.style.display !== 'none');
-                const idx = visibleItems.indexOf(item);
-                if (idx !== -1) setActiveItem(idx, false);
+                setActiveItem(index, false);
             });
 
             item.addEventListener('dblclick', function () {
@@ -201,21 +155,15 @@
         document.addEventListener('keydown', function (e) {
             if (document.getElementById('chartModal').style.display === 'flex') return;
 
-            if (document.activeElement === searchInput && e.key !== 'Enter' && e.key !== 'ArrowDown') {
-                return;
-            }
-
-            const visibleItems = items.filter(i => i.style.display !== 'none');
-
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1, false);
+                if (currentIndex < items.length - 1) setActiveItem(currentIndex + 1, false);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
-                if (currentIndex > 0) setActiveItem(currentIndex - 1);
+                if (currentIndex > 0) setActiveItem(currentIndex - 1, false);
             } else if (e.key === 'Enter') {
                 e.preventDefault();
-                if (visibleItems[currentIndex]) openYearDetails(visibleItems[currentIndex], items.indexOf(visibleItems[currentIndex]));
+                if (items[currentIndex]) openYearDetails(items[currentIndex], currentIndex);
             }
         });
     });
@@ -226,13 +174,10 @@
     function openChartModal() {
         document.getElementById('chartModal').style.display = 'flex';
 
-        if (myChart !== null) return; // Графік вже створений
+        if (myChart !== null) return;
 
-        const items = Array.from(document.querySelectorAll('.year-item')).reverse(); // Хронологічний порядок (від старіших до новіших)
-
-        // ВІСЬ X: Виводимо ТОЛЬКО цифри року без літери "р" або слів
+        const items = Array.from(document.querySelectorAll('.year-item')).reverse();
         const labels = items.map(i => i.getAttribute('data-year'));
-
         const countData = items.map(i => parseInt(i.getAttribute('data-count') || '0', 10));
         const summaData = items.map(i => parseFloat(i.getAttribute('data-summa') || '0'));
 
@@ -248,7 +193,7 @@
                         borderColor: '#007bff',
                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
                         fill: true,
-                        tension: 0.4, // Поліноміальне згладжування кривої
+                        tension: 0.4,
                         yAxisID: 'ySumma'
                     },
                     {
@@ -257,7 +202,7 @@
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
                         fill: true,
-                        tension: 0.4, // Поліноміальне згладжування кривої
+                        tension: 0.4,
                         yAxisID: 'yCount'
                     }
                 ]

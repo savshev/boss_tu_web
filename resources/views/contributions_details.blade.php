@@ -9,10 +9,6 @@
         .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 750px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
-        .search-box { display: none; margin-bottom: 12px; flex-shrink: 0; }
-        .search-input { width: 100%; padding: 9px 12px; border: 1px solid #ced4da; border-radius: 6px; font-size: 14px; outline: none; box-sizing: border-box; }
-        .search-input:focus { border-color: #007bff; box-shadow: 0 0 5px rgba(0,123,255,0.25); }
-
         .details-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
         .detail-item {
@@ -39,9 +35,6 @@
         .col-summa { font-weight: bold; color: #222; text-align: left; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
-        .btn-search-icon { width: 44px; height: 44px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; }
-        .btn-search-icon:hover { background-color: #5a6268; }
-
         .btn-back { flex: 1; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-back:hover { background-color: #5a6268; }
     </style>
@@ -49,10 +42,6 @@
 <body>
 <div class="card">
     <h2>{{ $title }}</h2>
-
-    <div class="search-box" id="searchBox">
-        <input type="text" id="searchInput" class="search-input" placeholder="Пошук місяця..." autocomplete="off">
-    </div>
 
     <div class="details-list" id="detailsList" tabindex="0">
         @php
@@ -87,81 +76,40 @@
     </div>
 
     <div class="action-buttons">
-        <button type="button" class="btn-search-icon" onclick="toggleSearch()" title="Швидкий пошук">🔍</button>
         <a href="{{ route('contributions') }}" class="btn-back">← Назад до років</a>
     </div>
 </div>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const searchBox = document.getElementById('searchBox');
-        const searchInput = document.getElementById('searchInput');
         let items = Array.from(document.querySelectorAll('.detail-item'));
         if (items.length === 0) return;
 
         let currentIndex = 0;
 
         function setActiveItem(index) {
-            const visibleItems = items.filter(item => item.style.display !== 'none');
-            if (visibleItems.length === 0) return;
-
             items.forEach(item => item.classList.remove('active'));
 
             if (index < 0) index = 0;
-            if (index >= visibleItems.length) index = visibleItems.length - 1;
+            if (index >= items.length) index = items.length - 1;
 
             currentIndex = index;
-            const activeItem = visibleItems[currentIndex];
+            const activeItem = items[currentIndex];
             activeItem.classList.add('active');
 
             activeItem.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
-        window.toggleSearch = function() {
-            if (searchBox.style.display === 'block') {
-                searchBox.style.display = 'none';
-                searchInput.value = '';
-                items.forEach(item => item.style.display = 'grid');
-                setActiveItem(0);
-            } else {
-                searchBox.style.display = 'block';
-                searchInput.focus();
-            }
-        };
-
-        searchInput.addEventListener('input', function () {
-            const query = this.value.trim().toLowerCase();
-
-            items.forEach(item => {
-                const month = item.getAttribute('data-month') || '';
-                if (month.includes(query)) {
-                    item.style.display = 'grid';
-                } else {
-                    item.style.display = 'none';
-                }
-            });
-
-            setActiveItem(0);
-        });
-
-        items.forEach((item) => {
+        items.forEach((item, index) => {
             item.addEventListener('click', function () {
-                const visibleItems = items.filter(i => i.style.display !== 'none');
-                const idx = visibleItems.indexOf(item);
-                if (idx !== -1) setActiveItem(idx);
+                setActiveItem(index);
             });
         });
 
         document.addEventListener('keydown', function (e) {
-            if (document.activeElement === searchInput && e.key !== 'Enter' && e.key !== 'ArrowDown') {
-                return;
-            }
-
-            const visibleItems = items.filter(i => i.style.display !== 'none');
-
             if (e.key === 'ArrowDown') {
                 e.preventDefault();
-                if (currentIndex < visibleItems.length - 1) setActiveItem(currentIndex + 1);
+                if (currentIndex < items.length - 1) setActiveItem(currentIndex + 1);
             } else if (e.key === 'ArrowUp') {
                 e.preventDefault();
                 if (currentIndex > 0) setActiveItem(currentIndex - 1);
