@@ -32,15 +32,15 @@
         .year-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        .col-year { font-weight: bold; font-size: 16px; color: #222; text-align: left; }
-        .year-val { color: #007bff; font-weight: bold; }
+        /* РОК ТА СЛОВО 'рік' - ЗВИЧАЙНИМ ТЕМНИМ КОЛЬОРОМ */
+        .col-year { font-weight: bold; font-size: 16px; color: #222222 !important; text-align: left; }
 
-        .col-in { font-weight: bold; color: #222; text-align: left; }
-        .col-ot { font-weight: bold; color: #222; text-align: left; }
+        .col-in { font-weight: bold; color: #222222 !important; text-align: left; }
+        .col-ot { font-weight: bold; color: #222222 !important; text-align: left; }
 
-        /* Підсвічування кольором лише сум */
-        .sum-in-val { color: #007bff; font-weight: bold; }
-        .sum-ot-val { color: #dc3545; font-weight: bold; }
+        /* ПІДСВІЧУВАННЯ КОЛЬОРОМ ТІЛЬКИ СУМ */
+        .sum-in-val { color: #007bff !important; font-weight: bold; }
+        .sum-ot-val { color: #dc3545 !important; font-weight: bold; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
         .btn-icon { width: 44px; height: 44px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.15s; }
@@ -76,8 +76,8 @@
                  data-ot="{{ $sumOt }}"
                  data-index="{{ $index }}"
                  tabindex="0">
-                <!-- Значення року блакитним, слово 'рік' - звичайним -->
-                <div class="col-year"><span class="year-val">{{ $yearVal }}</span> рік</div>
+                <!-- Повністю темний колір для року та слова 'рік' -->
+                <div class="col-year">{{ $yearVal }} рік</div>
 
                 <div class="col-in">дохід <span class="sum-in-val">{{ $fmtIn }}</span> грн.</div>
                 <div class="col-ot">витрата <span class="sum-ot-val">{{ $fmtOt }}</span> грн</div>
@@ -223,7 +223,7 @@
                     y: {
                         type: 'linear',
                         display: true,
-                        title: { display: text = 'Сума (грн)' }
+                        title: { display: true, text: 'Сума (грн)' }
                     }
                 }
             }
