@@ -33,8 +33,12 @@
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
         .col-year { font-weight: bold; font-size: 16px; color: #007bff; text-align: left; }
-        .col-in { font-weight: bold; color: #007bff; text-align: left; }
-        .col-ot { font-weight: bold; color: #dc3545; text-align: left; }
+        .col-in { font-weight: bold; color: #222; text-align: left; }
+        .col-ot { font-weight: bold; color: #222; text-align: left; }
+
+        /* Підсвічування КОЛЬОРОМ ТІЛЬКИ СУМ */
+        .sum-in-val { color: #007bff; font-weight: bold; }
+        .sum-ot-val { color: #dc3545; font-weight: bold; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
         .btn-icon { width: 44px; height: 44px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 18px; display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; transition: background-color 0.15s; }
@@ -71,8 +75,12 @@
                  data-index="{{ $index }}"
                  tabindex="0">
                 <div class="col-year">{{ $yearVal }} рік</div>
-                <div class="col-in">дохід {{ $fmtIn }} грн.</div>
-                <div class="col-ot">витрата {{ $fmtOt }} грн</div>
+
+                <!-- Слова звичайним кольором, сума - блакитним -->
+                <div class="col-in">дохід <span class="sum-in-val">{{ $fmtIn }}</span> грн.</div>
+
+                <!-- Слова звичайним кольором, сума - червоним -->
+                <div class="col-ot">витрата <span class="sum-ot-val">{{ $fmtOt }}</span> грн</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
@@ -190,7 +198,7 @@
                     {
                         label: 'Доходи (грн)',
                         data: inData,
-                        borderColor: '#007bff', // Блакитний колір
+                        borderColor: '#007bff',
                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
                         fill: true,
                         tension: 0.4
@@ -198,7 +206,7 @@
                     {
                         label: 'Витрати (грн)',
                         data: otData,
-                        borderColor: '#dc3545', // Червоний колір
+                        borderColor: '#dc3545',
                         backgroundColor: 'rgba(220, 53, 69, 0.1)',
                         fill: true,
                         tension: 0.4
