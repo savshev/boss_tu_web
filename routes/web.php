@@ -33,4 +33,7 @@ Route::middleware(['tenant.db'])->group(function () {
     // Раздел Позики
     Route::get('/loans', [MainController::class, 'loansYears'])->name('loans');
     Route::get('/loans/year/{year}', [MainController::class, 'loansYearDetails'])->name('loans.year');
+    // Розділ Чисельність та внески
+    Route::get('/contributions', [MainController::class, 'contributionsYears'])->name('contributions');
+    Route::get('/contributions/year/{year}', [MainController::class, 'contributionsYearDetails'])->name('contributions.year');
 });

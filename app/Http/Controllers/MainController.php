@@ -452,4 +452,35 @@ class MainController extends Controller
 
         return view('loans_details', compact('records', 'title', 'year'));
     }
+
+    /**
+     * Відображає річну статистику чисельності та внесків (MONTH = 13).
+     */
+    public function contributionsYears()
+    {
+        $yearsData = DB::table('SQL_VZCN')
+            ->where('MONTH', 13)
+            ->orderBy('YEAR', 'desc')
+            ->get();
+
+        $title = 'Чисельність та внески';
+
+        return view('contributions_years', compact('yearsData', 'title'));
+    }
+
+    /**
+     * Відображає помісячну деталізацію за обраний рік (MONTH <> 13).
+     */
+    public function contributionsYearDetails($year)
+    {
+        $records = DB::table('SQL_VZCN')
+            ->where('YEAR', $year)
+            ->where('MONTH', '!=', 13)
+            ->orderBy('MONTH', 'asc')
+            ->get();
+
+        $title = "Чисельність та внески за {$year} рік";
+
+        return view('contributions_details', compact('records', 'title', 'year'));
+    }
 }

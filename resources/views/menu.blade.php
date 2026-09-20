@@ -67,8 +67,11 @@
             <span>Позики</span>
         </a>
 
+        <!-- Кнопка Чисельність та внески -->
+        <a href="{{ route('contributions') }}" class="menu-btn interactive-btn">
+            <span>Чисельність та внески</span>
+        </a>
 
-        <a href="#" class="menu-btn">Чисельність та внески</a>
         <a href="#" class="menu-btn">Доходи та витрати</a>
     </div>
 
