@@ -228,8 +228,11 @@
 
         if (myChart !== null) return; // Графік вже створений
 
-        const items = Array.from(document.querySelectorAll('.year-item')).reverse(); // Сортуємо від хронологічно старіших до новіших
-        const labels = items.map(i => i.getAttribute('data-year') + ' р.');
+        const items = Array.from(document.querySelectorAll('.year-item')).reverse(); // Хронологічний порядок (від старіших до новіших)
+
+        // ВІСЬ X: Виводимо ТОЛЬКО цифри року без літери "р" або слів
+        const labels = items.map(i => i.getAttribute('data-year'));
+
         const countData = items.map(i => parseInt(i.getAttribute('data-count') || '0', 10));
         const summaData = items.map(i => parseFloat(i.getAttribute('data-summa') || '0'));
 
@@ -245,7 +248,7 @@
                         borderColor: '#007bff',
                         backgroundColor: 'rgba(0, 123, 255, 0.1)',
                         fill: true,
-                        tension: 0.4, // Поліноміальне згладжування лінії
+                        tension: 0.4, // Поліноміальне згладжування кривої
                         yAxisID: 'ySumma'
                     },
                     {
@@ -254,7 +257,7 @@
                         borderColor: '#28a745',
                         backgroundColor: 'rgba(40, 167, 69, 0.1)',
                         fill: true,
-                        tension: 0.4, // Поліноміальне згладжування лінії
+                        tension: 0.4, // Поліноміальне згладжування кривої
                         yAxisID: 'yCount'
                     }
                 ]
@@ -264,6 +267,9 @@
                 maintainAspectRatio: false,
                 interaction: { mode: 'index', intersect: false },
                 scales: {
+                    x: {
+                        title: { display: true, text: 'Рік' }
+                    },
                     ySumma: {
                         type: 'linear',
                         display: true,

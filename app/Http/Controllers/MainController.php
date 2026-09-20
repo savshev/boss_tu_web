@@ -469,14 +469,14 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає помісячну деталізацію за обраний рік (MONTH <> 13).
+     * Відображає помісячну деталізацію за обраний рік з числовим сортуванням MONTH від 1 до 12.
      */
     public function contributionsYearDetails($year)
     {
         $records = DB::table('SQL_VZCN')
             ->where('YEAR', $year)
             ->where('MONTH', '!=', 13)
-            ->orderBy('MONTH', 'asc')
+            ->orderByRaw('CAST(MONTH AS UNSIGNED) ASC') // Числове сортування за місяцями від 1 до 12
             ->get();
 
         $title = "Чисельність та внески за {$year} рік";
