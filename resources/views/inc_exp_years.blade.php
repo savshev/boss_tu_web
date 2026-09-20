@@ -32,11 +32,13 @@
         .year-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        .col-year { font-weight: bold; font-size: 16px; color: #007bff; text-align: left; }
+        .col-year { font-weight: bold; font-size: 16px; color: #222; text-align: left; }
+        .year-val { color: #007bff; font-weight: bold; }
+
         .col-in { font-weight: bold; color: #222; text-align: left; }
         .col-ot { font-weight: bold; color: #222; text-align: left; }
 
-        /* Підсвічування КОЛЬОРОМ ТІЛЬКИ СУМ */
+        /* Підсвічування кольором лише сум */
         .sum-in-val { color: #007bff; font-weight: bold; }
         .sum-ot-val { color: #dc3545; font-weight: bold; }
 
@@ -74,12 +76,10 @@
                  data-ot="{{ $sumOt }}"
                  data-index="{{ $index }}"
                  tabindex="0">
-                <div class="col-year">{{ $yearVal }} рік</div>
+                <!-- Значення року блакитним, слово 'рік' - звичайним -->
+                <div class="col-year"><span class="year-val">{{ $yearVal }}</span> рік</div>
 
-                <!-- Слова звичайним кольором, сума - блакитним -->
                 <div class="col-in">дохід <span class="sum-in-val">{{ $fmtIn }}</span> грн.</div>
-
-                <!-- Слова звичайним кольором, сума - червоним -->
                 <div class="col-ot">витрата <span class="sum-ot-val">{{ $fmtOt }}</span> грн</div>
             </div>
         @empty
@@ -176,7 +176,6 @@
         });
     });
 
-    // Побудова графіка доходів (блакитний) та витрат (червоний)
     let myChart = null;
 
     function openChartModal() {
@@ -224,7 +223,7 @@
                     y: {
                         type: 'linear',
                         display: true,
-                        title: { display: true, text: 'Сума (грн)' }
+                        title: { display: text = 'Сума (грн)' }
                     }
                 }
             }

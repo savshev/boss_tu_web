@@ -36,8 +36,12 @@
         .detail-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
         .col-title { font-weight: bold; color: #111; text-align: left; }
-        .col-sum-in { font-weight: bold; color: #007bff; text-align: right; }
-        .col-sum-ot { font-weight: bold; color: #dc3545; text-align: right; }
+        .col-sum-in { font-weight: bold; color: #222; text-align: right; }
+        .col-sum-ot { font-weight: bold; color: #222; text-align: right; }
+
+        /* Підсвічування кольором лише чисел */
+        .sum-in-val { color: #007bff; font-weight: bold; }
+        .sum-ot-val { color: #dc3545; font-weight: bold; }
 
         .action-buttons { display: flex; gap: 10px; flex-shrink: 0; }
         .btn-back { flex: 1; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
@@ -67,7 +71,8 @@
             @endphp
             <div class="detail-item {{ $index === 0 ? 'active' : '' }}" tabindex="0">
                 <div class="col-title">{{ $fullName !== '' ? $fullName : 'Стаття без назви' }}</div>
-                <div class="col-sum-in">{{ $fmtSum }} грн</div>
+                <!-- Число блакитним, 'грн' - звичайним -->
+                <div class="col-sum-in"><span class="sum-in-val">{{ $fmtSum }}</span> грн</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
@@ -76,7 +81,7 @@
         @endforelse
     </div>
 
-    <!-- Список Витрат (прихований за замовчуванням) -->
+    <!-- Список Витрат -->
     <div class="details-list" id="expensesList" style="display: none;" tabindex="0">
         @forelse($expenses as $index => $row)
             @php
@@ -89,7 +94,8 @@
             @endphp
             <div class="detail-item" tabindex="0">
                 <div class="col-title">{{ $fullName !== '' ? $fullName : 'Стаття без назви' }}</div>
-                <div class="col-sum-ot">{{ $fmtSum }} грн</div>
+                <!-- Число червоним, 'грн' - звичайним -->
+                <div class="col-sum-ot"><span class="sum-ot-val">{{ $fmtSum }}</span> грн</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
