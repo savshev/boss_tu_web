@@ -72,7 +72,10 @@
             <span>Чисельність та внески</span>
         </a>
 
-        <a href="#" class="menu-btn">Доходи та витрати</a>
+        <!-- Кнопка Доходи та витрати -->
+        <a href="{{ route('incexp') }}" class="menu-btn interactive-btn">
+            <span>Доходи та витрати</span>
+        </a>
     </div>
 
     <a href="{{ route('main') }}" class="btn-back">← Назад</a>

@@ -483,4 +483,49 @@ class MainController extends Controller
 
         return view('contributions_details', compact('records', 'title', 'year'));
     }
+
+    /**
+     * Відображає річні підсумки доходів та витрат (WHAT = 0).
+     */
+    public function incExpYears()
+    {
+        $yearsData = DB::table('SQL_INOT')
+            ->where('WHAT', 0)
+            ->orderBy('YEAR', 'desc')
+            ->get();
+
+        $title = 'Доходи та витрати';
+
+        return view('inc_exp_years', compact('yearsData', 'title'));
+    }
+
+    /**
+     * Відображає розшифровку доходів та витрат за даний рік (WHAT = 1).
+     */
+    public function incExpYearDetails($year)
+    {
+        // 1. Статті доходів (WHAT = 1, CODE_OT = 0)
+        $incomes = DB::table('SQL_INOT')
+            ->leftJoin('SQL_BSCH', 'SQL_INOT.CODE_IN', '=', 'SQL_BSCH.CODE')
+            ->where('SQL_INOT.YEAR', $year)
+            ->where('SQL_INOT.WHAT', 1)
+            ->where('SQL_INOT.CODE_OT', 0)
+            ->select('SQL_INOT.*', 'SQL_BSCH.TIT', 'SQL_BSCH.INFO')
+            ->orderBy('SQL_BSCH.TIT', 'asc')
+            ->get();
+
+        // 2. Статті витрат (WHAT = 1, CODE_IN = 0)
+        $expenses = DB::table('SQL_INOT')
+            ->leftJoin('SQL_BSCH', 'SQL_INOT.CODE_OT', '=', 'SQL_BSCH.CODE')
+            ->where('SQL_INOT.YEAR', $year)
+            ->where('SQL_INOT.WHAT', 1)
+            ->where('SQL_INOT.CODE_IN', 0)
+            ->select('SQL_INOT.*', 'SQL_BSCH.TIT', 'SQL_BSCH.INFO')
+            ->orderBy('SQL_BSCH.TIT', 'asc')
+            ->get();
+
+        $title = "Доходи та витрати за {$year} рік";
+
+        return view('inc_exp_details', compact('incomes', 'expenses', 'title', 'year'));
+    }
 }

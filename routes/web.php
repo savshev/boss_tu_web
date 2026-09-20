@@ -36,4 +36,7 @@ Route::middleware(['tenant.db'])->group(function () {
     // Розділ Чисельність та внески
     Route::get('/contributions', [MainController::class, 'contributionsYears'])->name('contributions');
     Route::get('/contributions/year/{year}', [MainController::class, 'contributionsYearDetails'])->name('contributions.year');
+    // Розділ Доходи та витрати
+    Route::get('/inc-exp', [MainController::class, 'incExpYears'])->name('incexp');
+    Route::get('/inc-exp/year/{year}', [MainController::class, 'incExpYearDetails'])->name('incexp.year');
 });
