@@ -385,7 +385,7 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає деталізований список отриманих фіндопомог у вибраному році.
+     * Розшифровка матеріальної допомоги за обраний рік з вибіркою поля FINH_INFO.
      */
     public function finhelpYearDetails($year)
     {
@@ -394,13 +394,15 @@ class MainController extends Controller
             ->where('SQL_SFIN.YEAR', $year)
             ->select(
                 'SQL_SFIN.*',
+                'SQL_SFIN.FINH_INFO', // Обов'язково вибираємо FINH_INFO
                 'SQL_LALL.PREV as LALL_PREV',
-                'SQL_LALL.DEPARTMN as LALL_DEPARTMN'
+                'SQL_LALL.IMA_RUS',
+                'SQL_LALL.OTCH_RUS'
             )
             ->orderBy('SQL_SFIN.FAM_RUS', 'asc')
             ->get();
 
-        $title = "Фіндопомога за {$year} рік";
+        $title = "Матеріальна допомога за {$year} рік";
 
         return view('finhelp_details', compact('records', 'title', 'year'));
     }
