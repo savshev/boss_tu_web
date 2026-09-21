@@ -555,6 +555,20 @@ class MainController extends Controller
     }
 
     /**
+     * Получение всех записей материальной помощи сотрудника из SQL_FINH для модального окна (JSON).
+     */
+    public function getPersonFinhelpDetails($partner)
+    {
+        $records = DB::table('SQL_FINH')
+            ->where('PARTNER', $partner)
+            ->orderBy('DATE', 'desc')
+            ->select('DATE', 'FINH_INFO', 'SUMMA')
+            ->get();
+
+        return response()->json($records);
+    }
+
+    /**
      * Відображає розшифровку доходів та витрат за даний рік (WHAT = 1).
      */
     public function incExpYearDetails($year)

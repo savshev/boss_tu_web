@@ -39,4 +39,6 @@ Route::middleware(['tenant.db'])->group(function () {
     // Розділ Доходи та витрати
     Route::get('/inc-exp', [MainController::class, 'incExpYears'])->name('incexp');
     Route::get('/inc-exp/year/{year}', [MainController::class, 'incExpYearDetails'])->name('incexp.year');
+    // вікно фіндопомоги
+    Route::get('/finhelp/person-details/{partner}', [MainController::class, 'getPersonFinhelpDetails'])->name('finhelp.person_details');
 });
