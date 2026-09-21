@@ -293,10 +293,14 @@ class MainController extends Controller
                 $arr = (array) $r;
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
 
+                // Дата у форматі DD.MM.YYYY
+                $rawDate = $getCol('DATE');
+                $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
+
                 $data[] = [
-                    'col1' => $getCol('DATE'),
+                    'col1' => $dateFormatted,
                     'col2' => number_format((float) str_replace(',', '.', $getCol('SUMMA')), 2, '.', ''),
-                    'col3' => $getCol('INFO'),
+                    'col3' => $getCol('FINH_INFO') !== '' ? $getCol('FINH_INFO') : '—', // Третя колонка: FINH_INFO
                 ];
             }
         } elseif ($type === 'tour') {
@@ -328,8 +332,8 @@ class MainController extends Controller
 
                 $data[] = [
                     'col1' => $getCol('DATE'),
-                    'col2' => $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '', // Нуль = пусто
-                    'col3' => $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '',   // Нуль = пусто
+                    'col2' => $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '',
+                    'col3' => $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '',
                     'col4' => $getCol('INFO_VEDM'),
                 ];
             }
