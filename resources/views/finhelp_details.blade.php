@@ -6,12 +6,12 @@
     <title>{{ $title }} | boss_tu_web</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
-        .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 780px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
+        .card { background: #ffffff; padding: 25px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 850px; height: 85vh; display: flex; flex-direction: column; box-sizing: border-box; }
         h2 { text-align: center; color: #333; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 10px; font-size: 19px; flex-shrink: 0; }
 
         .details-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
-        /* 3-колоночна сітка: Табельний (90px) + ПІБ (220px) + Інформація (FINH_INFO) + Сума */
+        /* 4-колоночна сітка: Табельний (90px) + ПІБ (220px) + Інформація SQL_FINH.FINH_INFO (1fr) + Сума (130px) */
         .detail-item {
             background: #f8f9fa;
             border-left: 4px solid #ced4da;
@@ -23,7 +23,7 @@
             transition: background-color 0.15s ease;
             outline: none;
             display: grid;
-            grid-template-columns: 90px 220px 1fr 140px;
+            grid-template-columns: 90px 220px 1fr 130px;
             gap: 12px;
             align-items: center;
             font-size: 14px;
@@ -33,10 +33,11 @@
 
         .col-tabnom { text-align: right; font-weight: bold; color: #007bff; }
         .col-fam { text-align: left; font-weight: bold; color: #111; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .col-info { text-align: left; color: #555; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .col-info { text-align: left; color: #333; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
         .col-summa { text-align: right; font-weight: bold; color: #222; }
 
-        /* Стиль для звільнених */
+        .sum-val { color: #222; font-weight: bold; }
+
         .detail-item.dismissed { background-color: #e9ecef; cursor: not-allowed; }
         .text-dismissed { color: #6c757d !important; }
 
@@ -53,9 +54,13 @@
         @forelse($records as $index =>$row)
             @php
                 $arr = (array)$row;
-                $partnerVal = trim((string)($arr['PARTNER'] ?? $arr['partner'] ?? ''));$tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);
-                $fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));$ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
-                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));$finhInfo   = trim((string)($arr['FINH_INFO'] ?? $arr['finh_info'] ?? ''));
+                $partnerVal = trim((string)($arr['PARTNER'] ?? $arr['partner'] ?? ''));
+                $tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);$fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));
+                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));$ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
+
+                // Отримуємо інформацію з поля FINH_INFO таблиці SQL_FINH
+                $finhInfo   = trim((string)($arr['FINH_INFO'] ?? $arr['finh_info'] ?? ''));
+
                 $summaVal   = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);$prevVal    = (int) ($arr['LALL_PREV'] ?? $arr['lall_prev'] ?? 0);
 
                 $fullFio    = trim(preg_replace('/\s+/', ' ', "{$fam} {$otch} {$ima}"));
@@ -68,21 +73,17 @@
                  data-prev="{{ $prevVal }}"
                  tabindex="0">
 
-                <!-- 1 колонка: Табельний номер -->
                 <div class="col-tabnom {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $tabDisplay }}</div>
-
-                <!-- 2 колонка: ПІБ -->
                 <div class="col-fam {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $fullFio !== '' ?$fullFio : 'ПІБ не вказано' }}</div>
 
-                <!-- 3 колонка: Інформація (поля FINH_INFO) -->
+                <!-- 3 колонка: Текст з поля SQL_FINH.FINH_INFO -->
                 <div class="col-info {{ $isDismissed ? 'text-dismissed' : '' }}">{{ $finhInfo !== '' ?$finhInfo : '—' }}</div>
 
-                <!-- 4 колонка: Сума допомоги -->
-                <div class="col-summa {{ $isDismissed ? 'text-dismissed' : '' }}"><strong>{{ $fmtSumma }}</strong> грн</div>
+                <div class="col-summa {{ $isDismissed ? 'text-dismissed' : '' }}"><span class="sum-val">{{ $fmtSumma }}</span> грн</div>
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи допомоги за {{ $year }} рік відсутні.
+                Записи допомоги у таблиці SQL_FINH за {{ $year }} рік відсутні.
             </div>
         @endforelse
     </div>
@@ -101,7 +102,7 @@
 
         function openPersonCard(item) {
             const prev = parseInt(item.getAttribute('data-prev') || '0', 10);
-            if (prev > 0) return; // Для звільнених картка заблокована
+            if (prev > 0) return;
 
             const partner = item.getAttribute('data-partner');
             if (partner) {

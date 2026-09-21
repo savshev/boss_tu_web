@@ -385,21 +385,25 @@ class MainController extends Controller
     }
 
     /**
-     * Розшифровка матеріальної допомоги за обраний рік з вибіркою поля FINH_INFO.
+     * Деталізація матеріальної допомоги за рік з таблиці SQL_FINH.
      */
     public function finhelpYearDetails($year)
     {
-        $records = DB::table('SQL_SFIN')
-            ->leftJoin('SQL_LALL', 'SQL_SFIN.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->where('SQL_SFIN.YEAR', $year)
+        $records = DB::table('SQL_FINH')
+            ->leftJoin('SQL_LALL', 'SQL_FINH.PARTNER', '=', 'SQL_LALL.PARTNER')
+            ->where('SQL_FINH.YEAR', $year)
             ->select(
-                'SQL_SFIN.*',
-                'SQL_SFIN.FINH_INFO', // Обов'язково вибираємо FINH_INFO
-                'SQL_LALL.PREV as LALL_PREV',
+                'SQL_FINH.PARTNER',
+                'SQL_FINH.DATE',
+                'SQL_FINH.SUMMA',
+                'SQL_FINH.FINH_INFO',
+                'SQL_LALL.TAB_NOM',
+                'SQL_LALL.FAM_RUS',
                 'SQL_LALL.IMA_RUS',
-                'SQL_LALL.OTCH_RUS'
+                'SQL_LALL.OTCH_RUS',
+                'SQL_LALL.PREV as LALL_PREV'
             )
-            ->orderBy('SQL_SFIN.FAM_RUS', 'asc')
+            ->orderBy('SQL_LALL.FAM_RUS', 'asc')
             ->get();
 
         $title = "Матеріальна допомога за {$year} рік";
