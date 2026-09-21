@@ -59,17 +59,22 @@
     <h2>{{ $title }}</h2>
 
     <div class="details-list" id="detailsList" tabindex="0">
-        @forelse($records as $index =>$row)
+        @forelse($records as $index => $row)
             @php
-                $arr = (array)$row;
+                $arr = (array) $row;
                 $partnerVal = trim((string)($arr['PARTNER'] ?? $arr['partner'] ?? ''));
-                $tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);$fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));
-                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));$ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
-                $finhInfo   = trim((string)($arr['FINH_INFO'] ?? $arr['finh_info'] ?? ''));$summaVal   = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);
+                $tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);
+                $fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));
+                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));
+                $ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
 
+                // Извлекаем значение FINH_INFO с учетом любого регистра
+                $finhInfo   = trim((string)($arr['FINH_INFO'] ?? $arr['finh_info'] ?? ''));
+
+                $summaVal   = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);
                 $fullFio    = trim(preg_replace('/\s+/', ' ', "{$fam} {$otch} {$ima}"));
-                $tabDisplay = $tabNomRaw === 0 ? 'Ветеран' : str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
-                $fmtSumma   = number_format($summaVal, 2, '.', '');
+                $tabDisplay  = $tabNomRaw === 0 ? 'Ветеран' : str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
+                $fmtSumma    = number_format($summaVal, 2, '.', '');
             @endphp
             <div class="detail-item {{ $index === 0 ? 'active' : '' }}"
                  data-partner="{{ $partnerVal }}"
@@ -77,8 +82,11 @@
                  tabindex="0">
 
                 <div class="col-tabnom">{{ $tabDisplay }}</div>
-                <div class="col-fam">{{ $fullFio !== '' ?$fullFio : 'ПІБ не вказано' }}</div>
-                <div class="col-info">{{ $finhInfo !== '' ?$finhInfo : '—' }}</div>
+                <div class="col-fam">{{ $fullFio !== '' ? $fullFio : 'ПІБ не вказано' }}</div>
+
+                <!-- Колонка информации из SQL_FINH.FINH_INFO -->
+                <div class="col-info">{{ $finhInfo !== '' ? $finhInfo : '—' }}</div>
+
                 <div class="col-summa"><span class="sum-val">{{ $fmtSumma }}</span> грн</div>
             </div>
         @empty

@@ -385,18 +385,18 @@ class MainController extends Controller
     }
 
     /**
-     * Деталізація матеріальної допомоги за рік з таблиці SQL_FINH.
+     * Детализация материальной помощи за год из таблицы SQL_FINH.
      */
     public function finhelpYearDetails($year)
     {
         $records = DB::table('SQL_FINH')
             ->leftJoin('SQL_LALL', 'SQL_FINH.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->where('SQL_FINH.YEAR', $year)
+            ->whereYear('SQL_FINH.DATE', $year)
             ->select(
                 'SQL_FINH.PARTNER',
                 'SQL_FINH.DATE',
                 'SQL_FINH.SUMMA',
-                'SQL_FINH.FINH_INFO',
+                'SQL_FINH.FINH_INFO as FINH_INFO', // Явный алиас для FINH_INFO
                 'SQL_LALL.TAB_NOM',
                 'SQL_LALL.FAM_RUS',
                 'SQL_LALL.IMA_RUS',
