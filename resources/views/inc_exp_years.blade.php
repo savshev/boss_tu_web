@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} | boss_tu_web</title>
-    <!-- Підключаємо Chart.js для графіка -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         body { font-family: Arial, sans-serif; background-color: #f4f6f9; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; padding: 15px; box-sizing: border-box; }
@@ -32,13 +31,13 @@
         .year-item:hover { background-color: #f1f3f5; border-left-color: #6c757d; }
         .year-item.active { background-color: #e7f1ff !important; border-left: 5px solid #007bff !important; box-shadow: 0 2px 6px rgba(0,123,255,0.25); }
 
-        /* РОК ТА СЛОВО 'рік' - ЗВИЧАЙНИМ ТЕМНИМ КОЛЬОРОМ */
-        .col-year { font-weight: bold; font-size: 16px; color: #222222 !important; text-align: left; }
+        /* Рік у першій колонці знову БЛАКИТНИЙ та BOLD */
+        .col-year { font-weight: bold; font-size: 16px; color: #007bff !important; text-align: left; }
 
-        .col-in { font-weight: bold; color: #222222 !important; text-align: left; }
-        .col-ot { font-weight: bold; color: #222222 !important; text-align: left; }
+        .col-in { font-weight: normal; color: #222222; text-align: left; }
+        .col-ot { font-weight: normal; color: #222222; text-align: left; }
 
-        /* ПІДСВІЧУВАННЯ КОЛЬОРОМ ТІЛЬКИ СУМ */
+        /* Жирне виділення суми */
         .sum-in-val { color: #007bff !important; font-weight: bold; }
         .sum-ot-val { color: #dc3545 !important; font-weight: bold; }
 
@@ -49,7 +48,6 @@
         .btn-back { flex: 1; padding: 11px; background-color: #6c757d; color: white; border: none; border-radius: 6px; font-size: 15px; font-weight: bold; text-align: center; text-decoration: none; box-sizing: border-box; }
         .btn-back:hover { background-color: #5a6268; }
 
-        /* Модальне вікно для графіка */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #ffffff; padding: 25px; border-radius: 10px; width: 90%; max-width: 800px; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .modal-header { font-size: 18px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
@@ -76,9 +74,7 @@
                  data-ot="{{ $sumOt }}"
                  data-index="{{ $index }}"
                  tabindex="0">
-                <!-- Повністю темний колір для року та слова 'рік' -->
                 <div class="col-year">{{ $yearVal }} рік</div>
-
                 <div class="col-in">дохід <span class="sum-in-val">{{ $fmtIn }}</span> грн.</div>
                 <div class="col-ot">витрата <span class="sum-ot-val">{{ $fmtOt }}</span> грн</div>
             </div>
@@ -95,7 +91,6 @@
     </div>
 </div>
 
-<!-- Модальне вікно для графіка -->
 <div class="modal-overlay" id="chartModal">
     <div class="modal-content">
         <div class="modal-header">
