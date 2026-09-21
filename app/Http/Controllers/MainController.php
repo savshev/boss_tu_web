@@ -159,26 +159,56 @@ class MainController extends Controller
 //    }
 
     /**
-     * Список работающих с учетом обработки категории 'CNTENT_ALL'.
+     * Список працюючих за категоріями з точними фільтрами по полях SQL_LALL.
      */
     public function workingList($category)
     {
-        // Создаем базовый запрос к таблице SQL_LALL для работающих (PREV = 0)
+        // Базова умова для всіх працюючих у підрозділах
         $query = DB::table('SQL_LALL')
             ->where('PREV', 0)
+            ->where('DEPARTMN', '>', 0)
             ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');
 
-        // Если передана конкретная категория (и это не CNTENT_ALL/ALL), добавляем фильтрацию
-        if ($category !== 'CNTENT_ALL' && $category !== 'ALL' && $category !== '0') {
-            // Если в вашей базе колонка называется иначе, укажите ее имя (например, 'CATEG')
-            $query->where('KATEG', $category);
+        // Додаємо специфічні умови для кожної категорії
+        switch ($category) {
+            case 'COUNT_MEN':
+                $query->where('SEX', 1);
+                $title = 'Працівники-чоловіки';
+                break;
+
+            case 'COUNT_WMN':
+                $query->where('SEX', 2);
+                $title = 'Працівники-жінки';
+                break;
+
+            case 'COUNT_TDET':
+                $query->where('CNT_TOURS', '>', 0);
+                $title = 'Працівники з путівками';
+                break;
+
+            case 'COUNT_SFIN':
+                $query->where('CNT_FINHLP', '>', 0);
+                $title = 'Працівники, які отримали фіндопомогу';
+                break;
+
+            case 'COUNT_KRED':
+                $query->where('SUM_KREDIT', '>', 0);
+                $title = 'Працівники, які отримали позики';
+                break;
+
+            case 'COUNT_AGE':
+                $query->where('COUNT_AGE', '>', 0);
+                $title = 'Молоді працівники (віком до...)';
+                break;
+
+            case 'CNTENT_ALL':
+            case 'ALL':
+            default:
+                $title = 'Усі працюючі працівники';
+                break;
         }
 
         $people = $query->orderBy('FAM_RUS', 'asc')->get();
-
-        $title = ($category === 'CNTENT_ALL' || $category === 'ALL')
-            ? 'Усі працюючі працівники'
-            : "Працівники категорії {$category}";
 
         return view('working_list', compact('people', 'title', 'category'));
     }
