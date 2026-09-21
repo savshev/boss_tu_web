@@ -159,18 +159,26 @@ class MainController extends Controller
 //    }
 
     /**
-     * Список работающих по категории с 3-строчным выводом информации.
+     * Список работающих с учетом обработки категории 'CNTENT_ALL'.
      */
     public function workingList($category)
     {
-        $people = DB::table('SQL_LALL')
+        // Создаем базовый запрос к таблице SQL_LALL для работающих (PREV = 0)
+        $query = DB::table('SQL_LALL')
             ->where('PREV', 0)
-            ->where('KATEG', $category)
-            ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO')
-            ->orderBy('FAM_RUS', 'asc')
-            ->get();
+            ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');
 
-        $title = "Працівники категорії {$category}";
+        // Если передана конкретная категория (и это не CNTENT_ALL/ALL), добавляем фильтрацию
+        if ($category !== 'CNTENT_ALL' && $category !== 'ALL' && $category !== '0') {
+            // Если в вашей базе колонка называется иначе, укажите ее имя (например, 'CATEG')
+            $query->where('KATEG', $category);
+        }
+
+        $people = $query->orderBy('FAM_RUS', 'asc')->get();
+
+        $title = ($category === 'CNTENT_ALL' || $category === 'ALL')
+            ? 'Усі працюючі працівники'
+            : "Працівники категорії {$category}";
 
         return view('working_list', compact('people', 'title', 'category'));
     }
