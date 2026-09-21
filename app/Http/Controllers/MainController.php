@@ -197,7 +197,7 @@ class MainController extends Controller
                 break;
 
             case 'COUNT_AGE':
-                $query->where('COUNT_AGE', '>', 0);
+                $query->where('COUNT_AGE', '>', 0); // Покриває COUNT_AGE = 20, 25 тощо
                 $title = 'Молоді працівники (віком до...)';
                 break;
 
