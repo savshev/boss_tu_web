@@ -159,57 +159,20 @@ class MainController extends Controller
 //    }
 
     /**
-     * Список работающих с поддержкой категорий, подразделений (departmn) и пола (sex).
+     * Список работающих по категории с 3-строчным выводом информации.
      */
-    public function workingList(Request $request, $category)
+    public function workingList($category)
     {
-        $query = DB::table('SQL_LALL')->where('PREV', 0);
+        $people = DB::table('SQL_LALL')
+            ->where('PREV', 0)
+            ->where('KATEG', $category)
+            ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO')
+            ->orderBy('FAM_RUS', 'asc')
+            ->get();
 
-        $departmn = $request->query('departmn');
-        $sex = $request->query('sex');
+        $title = "Працівники категорії {$category}";
 
-        // По умолчанию возврат ведет в меню Работающих
-        $backUrl = route('working');
-        $backLabel = '← Назад до показників';
-
-        // Если перешли из раздела Подразделения
-        if ($departmn !== null) {
-            $query->where('DEPARTMN', $departmn);
-            $dprtRecord = DB::table('SQL_DPRT')->where('DEPARTMN', $departmn)->first();
-
-            $arrDprt = (array) $dprtRecord;
-            $dprtName = $dprtRecord ? trim((string)($arrDprt['DPRT_INFO'] ?? $arrDprt['dprt_info'] ?? '')) : "Підрозділ #{$departmn}";
-
-            if ($sex == 1) {
-                $query->where('SEX', 1);
-                $title = "{$dprtName} (Чоловіки)";
-            } elseif ($sex == 2) {
-                $query->where('SEX', 2);
-                $title = "{$dprtName} (Жінки)";
-            } else {
-                $title = "{$dprtName} (Всього)";
-            }
-
-            // Возврат ведем назад к списку Подразделений!
-            $backUrl = route('departments');
-            $backLabel = '← Назад до підрозділів';
-        } else {
-            // Стандартная фильтрация по категориям из главного меню работающих
-            if ($category === 'CNTENT_MEN') {
-                $query->where('DEPARTMN', '>', 0)->where('SEX', 1);
-                $title = 'Працюючі чоловіки';
-            } elseif ($category === 'CNTENT_WOM') {
-                $query->where('DEPARTMN', '>', 0)->where('SEX', 2);
-                $title = 'Працюючі жінки';
-            } else {
-                $query->where('DEPARTMN', '>', 0);
-                $title = 'Працюючі (Всього)';
-            }
-        }
-
-        $people = $query->get();
-
-        return view('working_list', compact('people', 'title', 'backUrl', 'backLabel'));
+        return view('working_list', compact('people', 'title', 'category'));
     }
 
 
