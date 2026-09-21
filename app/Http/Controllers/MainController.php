@@ -159,56 +159,104 @@ class MainController extends Controller
 //    }
 
     /**
-     * Список працюючих за категоріями з точними фільтрами по полях SQL_LALL.
+     * Список працюючих з повним масивом категорій $categoryTitles та точними фільтрами SQL.
      */
     public function workingList($category)
     {
-        // Базова умова для всіх працюючих у підрозділах
+        // Назви категорій для заголовка сторінки
+        $categoryTitles = [
+            'CNTENT_MEN' => 'Список працюючих: Чоловіки',
+            'CNTENT_WOM' => 'Список працюючих: Жінки',
+            'COUNT_TOUR' => 'Працівники, які отримали путівки',
+            'COUNT_FINH' => 'Працівники, які отримали фіндопомогу',
+            'COUNT_KRED' => 'Працівники, які отримали позички',
+            'COUNT_20'   => 'Працівники віком до 20 років',
+            'COUNT_25'   => 'Працівники віком 20 - 25 років',
+            'COUNT_30'   => 'Працівники віком 25 - 30 років',
+            'COUNT_35'   => 'Працівники віком 30 - 35 років',
+            'COUNT_40'   => 'Працівники віком 35 - 40 років',
+            'COUNT_45'   => 'Працівники віком 40 - 45 років',
+            'COUNT_50'   => 'Працівники віком 45 - 50 років',
+            'COUNT_55'   => 'Працівники віком 50 - 55 років',
+            'COUNT_60'   => 'Працівники віком 55 - 60 років',
+            'COUNT_100'  => 'Працівники віком понад 60 років',
+        ];
+
+        // Базова вибірка всіх працюючих (PREV = 0 та DEPARTMN > 0)
         $query = DB::table('SQL_LALL')
             ->where('PREV', 0)
             ->where('DEPARTMN', '>', 0)
             ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');
 
-        // Додаємо специфічні умови для кожної категорії
+        // Додаємо умови SQL відповідно до обраного ключа категорії
         switch ($category) {
-            case 'COUNT_MEN':
+            case 'CNTENT_MEN':
                 $query->where('SEX', 1);
-                $title = 'Працівники-чоловіки';
                 break;
 
-            case 'COUNT_WMN':
+            case 'CNTENT_WOM':
                 $query->where('SEX', 2);
-                $title = 'Працівники-жінки';
                 break;
 
-            case 'COUNT_TDET':
+            case 'COUNT_TOUR':
                 $query->where('CNT_TOURS', '>', 0);
-                $title = 'Працівники з путівками';
                 break;
 
-            case 'COUNT_SFIN':
+            case 'COUNT_FINH':
                 $query->where('CNT_FINHLP', '>', 0);
-                $title = 'Працівники, які отримали фіндопомогу';
                 break;
 
             case 'COUNT_KRED':
                 $query->where('SUM_KREDIT', '>', 0);
-                $title = 'Працівники, які отримали позики';
                 break;
 
-            case 'COUNT_AGE':
-                $query->where('COUNT_AGE', '>', 0); // Покриває COUNT_AGE = 20, 25 тощо
-                $title = 'Молоді працівники (віком до...)';
+            // Вікові категорії за значенням поля COUNT_AGE
+            case 'COUNT_20':
+                $query->where('COUNT_AGE', 20);
                 break;
 
-            case 'CNTENT_ALL':
-            case 'ALL':
-            default:
-                $title = 'Усі працюючі працівники';
+            case 'COUNT_25':
+                $query->where('COUNT_AGE', 25);
+                break;
+
+            case 'COUNT_30':
+                $query->where('COUNT_AGE', 30);
+                break;
+
+            case 'COUNT_35':
+                $query->where('COUNT_AGE', 35);
+                break;
+
+            case 'COUNT_40':
+                $query->where('COUNT_AGE', 40);
+                break;
+
+            case 'COUNT_45':
+                $query->where('COUNT_AGE', 45);
+                break;
+
+            case 'COUNT_50':
+                $query->where('COUNT_AGE', 50);
+                break;
+
+            case 'COUNT_55':
+                $query->where('COUNT_AGE', 55);
+                break;
+
+            case 'COUNT_60':
+                $query->where('COUNT_AGE', 60);
+                break;
+
+            case 'COUNT_100':
+                $query->where(function($q) {
+                    $q->where('COUNT_AGE', 100)
+                        ->orWhere('COUNT_AGE', '>', 60);
+                });
                 break;
         }
 
         $people = $query->orderBy('FAM_RUS', 'asc')->get();
+        $title = $categoryTitles[$category] ?? 'Список працюючих: Всі працівники';
 
         return view('working_list', compact('people', 'title', 'category'));
     }
