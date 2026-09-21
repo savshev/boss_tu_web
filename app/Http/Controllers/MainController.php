@@ -385,18 +385,18 @@ class MainController extends Controller
     }
 
     /**
-     * Детализация материальной помощи за год из таблицы SQL_FINH.
+     * Деталізація матеріальної допомоги за рік з таблиці SQL_FINH (нижній регістр полів).
      */
     public function finhelpYearDetails($year)
     {
         $records = DB::table('SQL_FINH')
             ->leftJoin('SQL_LALL', 'SQL_FINH.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->whereYear('SQL_FINH.DATE', $year)
+            ->whereYear('SQL_FINH.date', $year) // Поле date у нижньому регістрі
             ->select(
                 'SQL_FINH.PARTNER',
-                'SQL_FINH.DATE',
-                'SQL_FINH.SUMMA',
-                'SQL_FINH.FINH_INFO as FINH_INFO', // Явный алиас для FINH_INFO
+                'SQL_FINH.date',
+                'SQL_FINH.summa',
+                'SQL_FINH.finh_info', // Поле finh_info у нижньому регістрі
                 'SQL_LALL.TAB_NOM',
                 'SQL_LALL.FAM_RUS',
                 'SQL_LALL.IMA_RUS',
@@ -555,14 +555,14 @@ class MainController extends Controller
     }
 
     /**
-     * Получение всех записей материальной помощи сотрудника из SQL_FINH для модального окна (JSON).
+     * Отримання всіх записів матеріальної допомоги працівника з SQL_FINH для модального вікна (JSON).
      */
     public function getPersonFinhelpDetails($partner)
     {
         $records = DB::table('SQL_FINH')
             ->where('PARTNER', $partner)
-            ->orderBy('DATE', 'desc')
-            ->select('DATE', 'FINH_INFO', 'SUMMA')
+            ->orderBy('date', 'desc')
+            ->select('date', 'finh_info', 'summa')
             ->get();
 
         return response()->json($records);

@@ -11,6 +11,7 @@
 
         .details-list { flex: 1 1 auto; overflow-y: auto; padding-right: 8px; margin-bottom: 15px; outline: none; position: relative; }
 
+        /* 4-колоночна сітка: Табельний (90px) + ПІБ (220px) + Інформація finh_info (1fr) + Сума (130px) */
         .detail-item {
             background: #f8f9fa;
             border-left: 4px solid #ced4da;
@@ -37,7 +38,7 @@
 
         .sum-val { color: #222; font-weight: bold; }
 
-        /* Модальное окно */
+        /* Модальне вікно */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); justify-content: center; align-items: center; z-index: 1000; }
         .modal-content { background: #ffffff; padding: 25px; border-radius: 10px; width: 90%; max-width: 700px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 5px 20px rgba(0,0,0,0.3); }
         .modal-header { font-size: 17px; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #007bff; padding-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
@@ -59,22 +60,19 @@
     <h2>{{ $title }}</h2>
 
     <div class="details-list" id="detailsList" tabindex="0">
-        @forelse($records as $index => $row)
+        @forelse($records as $index =>$row)
             @php
-                $arr = (array) $row;
+                $arr = (array)$row;
                 $partnerVal = trim((string)($arr['PARTNER'] ?? $arr['partner'] ?? ''));
-                $tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);
-                $fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));
-                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));
-                $ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
+                $tabNomRaw  = (int) ($arr['TAB_NOM'] ?? $arr['tab_nom'] ?? 0);$fam        = trim((string)($arr['FAM_RUS'] ?? $arr['fam_rus'] ?? ''));
+                $otch       = trim((string)($arr['OTCH_RUS'] ?? $arr['otch_rus'] ?? ''));$ima        = trim((string)($arr['IMA_RUS'] ?? $arr['ima_rus'] ?? ''));
 
-                // Извлекаем значение FINH_INFO с учетом любого регистра
-                $finhInfo   = trim((string)($arr['FINH_INFO'] ?? $arr['finh_info'] ?? ''));
+                // Зчитуємо поле finh_info у нижньому регістрі
+                $finhInfo   = trim((string)($arr['finh_info'] ?? $arr['FINH_INFO'] ?? ''));$summaVal   = (float) ($arr['summa'] ?? $arr['SUMMA'] ?? 0);
 
-                $summaVal   = (float) ($arr['SUMMA'] ?? $arr['summa'] ?? 0);
                 $fullFio    = trim(preg_replace('/\s+/', ' ', "{$fam} {$otch} {$ima}"));
-                $tabDisplay  = $tabNomRaw === 0 ? 'Ветеран' : str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
-                $fmtSumma    = number_format($summaVal, 2, '.', '');
+                $tabDisplay = $tabNomRaw === 0 ? 'Ветеран' : str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
+                $fmtSumma   = number_format($summaVal, 2, '.', '');
             @endphp
             <div class="detail-item {{ $index === 0 ? 'active' : '' }}"
                  data-partner="{{ $partnerVal }}"
@@ -82,10 +80,10 @@
                  tabindex="0">
 
                 <div class="col-tabnom">{{ $tabDisplay }}</div>
-                <div class="col-fam">{{ $fullFio !== '' ? $fullFio : 'ПІБ не вказано' }}</div>
+                <div class="col-fam">{{ $fullFio !== '' ?$fullFio : 'ПІБ не вказано' }}</div>
 
-                <!-- Колонка информации из SQL_FINH.FINH_INFO -->
-                <div class="col-info">{{ $finhInfo !== '' ? $finhInfo : '—' }}</div>
+                <!-- Третя колонка: Інформація finh_info -->
+                <div class="col-info">{{ $finhInfo !== '' ?$finhInfo : '—' }}</div>
 
                 <div class="col-summa"><span class="sum-val">{{ $fmtSumma }}</span> грн</div>
             </div>
@@ -101,7 +99,7 @@
     </div>
 </div>
 
-<!-- Модальное окно истории материальной помощи сотрудника -->
+<!-- Модальне вікно історії матеріальної допомоги працівника -->
 <div class="modal-overlay" id="finhelpModal">
     <div class="modal-content">
         <div class="modal-header">
@@ -113,12 +111,12 @@
                 <thead>
                 <tr>
                     <th style="width: 110px;">Дата</th>
-                    <th>Інформація (FINH_INFO)</th>
+                    <th>Інформація (finh_info)</th>
                     <th style="width: 130px; text-align: right;">Сума</th>
                 </tr>
                 </thead>
                 <tbody id="modalTableBody">
-                <!-- Динамически заполняется через JS -->
+                <!-- Динамічно заповнюється через JS -->
                 </tbody>
             </table>
         </div>
@@ -154,9 +152,14 @@
                     }
 
                     data.forEach(row => {
-                        const dateVal = row.DATE ? new Date(row.DATE).toLocaleDateString('uk-UA') : '—';
-                        const infoVal = row.FINH_INFO ? row.FINH_INFO.trim() : '—';
-                        const sumVal = parseFloat(row.SUMMA || 0).toFixed(2);
+                        // Зчитуємо поля у нижньому регістрі (date, finh_info, summa)
+                        const rawDate = row.date || row.DATE;
+                        const rawInfo = row.finh_info !== undefined ? row.finh_info : row.FINH_INFO;
+                        const rawSum  = row.summa !== undefined ? row.summa : row.SUMMA;
+
+                        const dateVal = rawDate ? new Date(rawDate).toLocaleDateString('uk-UA') : '—';
+                        const infoVal = rawInfo ? String(rawInfo).trim() : '—';
+                        const sumVal  = parseFloat(rawSum || 0).toFixed(2);
 
                         const tr = document.createElement('tr');
                         tr.innerHTML = `
