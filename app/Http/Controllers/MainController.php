@@ -293,14 +293,13 @@ class MainController extends Controller
                 $arr = (array) $r;
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
 
-                // Дата у форматі DD.MM.YYYY
                 $rawDate = $getCol('DATE');
                 $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
 
                 $data[] = [
                     'col1' => $dateFormatted,
                     'col2' => number_format((float) str_replace(',', '.', $getCol('SUMMA')), 2, '.', ''),
-                    'col3' => $getCol('FINH_INFO') !== '' ? $getCol('FINH_INFO') : '—', // Третя колонка: FINH_INFO
+                    'col3' => $getCol('FINH_INFO') !== '' ? $getCol('FINH_INFO') : '—',
                 ];
             }
         } elseif ($type === 'tour') {
@@ -311,9 +310,11 @@ class MainController extends Controller
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
 
                 $perc = $getCol('PERC_INT');
+                $rawDate = $getCol('DATE');
+                $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
 
                 $data[] = [
-                    'col1' => $getCol('DATE'),
+                    'col1' => $dateFormatted,
                     'col2' => number_format((float) str_replace(',', '.', $getCol('SUMTOU_ALL')), 2, '.', ''),
                     'col3' => $perc !== '' ? "{$perc}%" : '',
                     'col4' => number_format((float) str_replace(',', '.', $getCol('SUMTOU_OPL')), 2, '.', ''),
@@ -327,14 +328,29 @@ class MainController extends Controller
                 $arr = (array) $r;
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
 
+                // 1 колонка: DATE
+                $rawDate = $getCol('DATE');
+                $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
+
+                // 2 колонка: SUM_KREDIT (взято)
                 $sumKredit = (float) str_replace(',', '.', $getCol('SUM_KREDIT'));
-                $sumRedem  = (float) str_replace(',', '.', $getCol('SUM_REDEM'));
+                $col2 = $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '';
+
+                // 3 колонка: SUM_REDEM (погашено)
+                $sumRedem = (float) str_replace(',', '.', $getCol('SUM_REDEM'));
+                $col3 = $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '';
+
+                // 4 колонка: INFO_VEDM (інформація)
+                $infoVedm = $getCol('INFO_VEDM');
+                if ($infoVedm === '') {
+                    $infoVedm = $getCol('INFO'); // Резервний варіант
+                }
 
                 $data[] = [
-                    'col1' => $getCol('DATE'),
-                    'col2' => $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '',
-                    'col3' => $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '',
-                    'col4' => $getCol('INFO_VEDM'),
+                    'col1' => $dateFormatted,
+                    'col2' => $col2,
+                    'col3' => $col3,
+                    'col4' => $infoVedm !== '' ? $infoVedm : '—',
                 ];
             }
         }

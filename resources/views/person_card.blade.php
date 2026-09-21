@@ -216,10 +216,14 @@
                         html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td><td>${r.col5}</td></tr>`;
                     });
                 } else if (data.type === 'vkre') {
-                    html += '<thead><tr><th>Дата</th><th>Взято</th><th>Погашено</th><th>Інформація</th></tr></thead><tbody>';
-                    data.records.forEach(r => {
-                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td></tr>`;
-                    });
+                    html += '<thead><tr><th style="width:110px;">Дата</th><th style="width:120px;">Взято (грн)</th><th style="width:120px;">Погашено (грн)</th><th>Інформація</th></tr></thead><tbody>';
+                    if (data.records.length === 0) {
+                        html += '<tr><td colspan="4" style="text-align:center; color:#dc3545;">Записи позичок відсутні.</td></tr>';
+                    } else {
+                        data.records.forEach(r => {
+                            html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td></tr>`;
+                        });
+                    }
                 }
 
                 html += '</tbody></table>';
