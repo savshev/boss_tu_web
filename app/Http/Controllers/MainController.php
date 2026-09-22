@@ -101,63 +101,6 @@ class MainController extends Controller
         return view('working', compact('totalWorking', 'stats'));
     }
 
-    /** +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-     * Відображає повний список людей з таблиці SQL_LALL за обраною категорією.
-     */
-//    public function workingList(Request $request, $category)
-//    {
-//        $categoryTitles = [
-//            'CNTENT_ALL'  => 'Список усіх працюючих',
-//            'CNTENT_MEN'  => 'Список працюючих: Чоловіки',
-//            'CNTENT_WOM'  => 'Список працюючих: Жінки',
-//            'COUNT_TOUR'  => 'Працівники, які отримали путівки',
-//            'COUNT_FINH'  => 'Працівники, які отримали фіндопомогу',
-//            'COUNT_KRED'  => 'Працівники, які отримали Позики',
-//            'COUNT_20'    => 'Працівники віком до 20 років',
-//            'COUNT_25'    => 'Працівники віком 20 - 25 років',
-//            'COUNT_30'    => 'Працівники віком 25 - 30 років',
-//            'COUNT_35'    => 'Працівники віком 30 - 35 років',
-//            'COUNT_40'    => 'Працівники віком 35 - 40 років',
-//            'COUNT_45'    => 'Працівники віком 40 - 45 років',
-//            'COUNT_50'    => 'Працівники віком 45 - 50 років',
-//            'COUNT_55'    => 'Працівники віком 50 - 55 років',
-//            'COUNT_60'    => 'Працівники віком 55 - 60 років',
-//            'COUNT_100'   => 'Працівники віком понад 60 років',
-//        ];
-//
-//        $title = $categoryTitles[$category] ?? 'Список працюючих';
-//
-//        // Базовий запит до SQL_LALL (працюючі)
-//        $query = DB::table('SQL_LALL')
-//            ->where('PREV', 0)
-//            ->where('DEPARTMN', '>', 0);
-//
-//        // Фільтрація за категорією
-//        switch ($category) {
-//            case 'CNTENT_MEN':  $query->where('SEX', 1); break;
-//            case 'CNTENT_WOM':  $query->where('SEX', 2); break;
-//            case 'COUNT_TOUR':  $query->where('SUMTOU_ALL', '>', 0); break;
-//            case 'COUNT_FINH':  $query->where('SUM_FINHLP', '>', 0); break;
-//            case 'COUNT_KRED':  $query->where('SUM_KREDIT', '>', 0); break;
-//
-//            case 'COUNT_20':  $query->where('COUNT_AGE', 20); break;
-//            case 'COUNT_25':  $query->where('COUNT_AGE', 25); break;
-//            case 'COUNT_30':  $query->where('COUNT_AGE', 30); break;
-//            case 'COUNT_35':  $query->where('COUNT_AGE', 35); break;
-//            case 'COUNT_40':  $query->where('COUNT_AGE', 40); break;
-//            case 'COUNT_45':  $query->where('COUNT_AGE', 45); break;
-//            case 'COUNT_50':  $query->where('COUNT_AGE', 50); break;
-//            case 'COUNT_55':  $query->where('COUNT_AGE', 55); break;
-//            case 'COUNT_60':  $query->where('COUNT_AGE', 60); break;
-//            case 'COUNT_100': $query->where('COUNT_AGE', 100); break;
-//        }
-//
-//        // Отримуємо всі записи без пагінації для зручного внутрішнього скролінгу
-//        $people = $query->get();
-//
-//        return view('working_list', compact('people', 'title', 'category'));
-//    }
-
     /**
      * Список працюючих з повним масивом категорій $categoryTitles та точними фільтрами SQL.
      */
@@ -258,7 +201,12 @@ class MainController extends Controller
         $people = $query->orderBy('FAM_RUS', 'asc')->get();
         $title = $categoryTitles[$category] ?? 'Список працюючих: Всі працівники';
 
-        return view('working_list', compact('people', 'title', 'category'));
+        // Кнопка повернення веде на загальні категорії
+        $backRoute = route('working');
+        $backLabel = '← Назад до категорій';
+
+        //return view('working_list', compact('people', 'title', 'category'));
+        return view('working_list', compact('people', 'title', 'category', 'backRoute', 'backLabel'));
     }
 
 
@@ -322,36 +270,45 @@ class MainController extends Controller
                 ];
             }
         } elseif ($type === 'vkre') {
-            // Позики z SQL_VKRE
-            $records = DB::table('SQL_VKRE')->where('PARTNER', $partner)->get();
-            foreach ($records as $r) {
-                $arr = (array) $r;
-                $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
+            // Позики z SQL_VKRE с отловом возможных ошибок SQL
+            try {
+                $records = DB::table('SQL_VKRE')->where('PARTNER', $partner)->get();
+                foreach ($records as $r) {
+                    $arr = (array) $r;
+                    $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
 
-                // 1 колонка: DATE
-                $rawDate = $getCol('DATE');
-                $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
+                    // 1 колонка: DATE
+                    $rawDate = $getCol('DATE');
+                    $dateFormatted = $rawDate !== '' ? date('d.m.Y', strtotime($rawDate)) : '—';
 
-                // 2 колонка: SUM_KREDIT (взято)
-                $sumKredit = (float) str_replace(',', '.', $getCol('SUM_KREDIT'));
-                $col2 = $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '';
+                    // 2 колонка: SUM_KREDIT (взято)
+                    $sumKredit = (float) str_replace(',', '.', $getCol('SUM_KREDIT'));
+                    $col2 = $sumKredit > 0 ? number_format($sumKredit, 2, '.', '') : '';
 
-                // 3 колонка: SUM_REDEM (погашено)
-                $sumRedem = (float) str_replace(',', '.', $getCol('SUM_REDEM'));
-                $col3 = $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '';
+                    // 3 колонка: SUM_REDEM (погашено)
+                    $sumRedem = (float) str_replace(',', '.', $getCol('SUM_REDEM'));
+                    $col3 = $sumRedem > 0 ? number_format($sumRedem, 2, '.', '') : '';
 
-                // 4 колонка: INFO_VEDM (інформація)
-                $infoVedm = $getCol('INFO_VEDM');
-                if ($infoVedm === '') {
-                    $infoVedm = $getCol('INFO'); // Резервний варіант
+                    // 4 колонка: INFO_VEDM (информация)
+                    $infoVedm = $getCol('INFO_VEDM');
+                    if ($infoVedm === '') {
+                        $infoVedm = $getCol('INFO');
+                    }
+
+                    $data[] = [
+                        'col1' => $dateFormatted,
+                        'col2' => $col2,
+                        'col3' => $col3,
+                        'col4' => $infoVedm !== '' ? $infoVedm : '—',
+                    ];
                 }
-
-                $data[] = [
-                    'col1' => $dateFormatted,
-                    'col2' => $col2,
-                    'col3' => $col3,
-                    'col4' => $infoVedm !== '' ? $infoVedm : '—',
-                ];
+            } catch (\Exception $e) {
+                // Возвращаем точную причину ошибки базы данных
+                return response()->json([
+                    'type' => $type,
+                    'records' => [],
+                    'error' => $e->getMessage()
+                ], 500);
             }
         }
 
@@ -377,12 +334,40 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає список підрозділів з таблиці SQL_DPRT.
+     * Відображає список підрозділів з таблиці SQL_DPRT (без ветеранів DEPARTMN = 0) та кількість працюючих.
      */
     public function departmentsList()
     {
-        // Отримуємо всі записи з SQL_DPRT
-        $departments = DB::table('SQL_DPRT')->get();
+        // Отримуємо всі підрозділи з SQL_DPRT, окрім ветеранів (DEPARTMN > 0)
+        $departments = DB::table('SQL_DPRT')
+            ->where('DEPARTMN', '>', 0)
+            ->get();
+
+        // Для кожного підрозділу підраховуємо кількість працюючих з SQL_LALL (PREV = 0)
+        foreach ($departments as $dprt) {
+            $depId = $dprt->DEPARTMN ?? $dprt->departmn ?? 0;
+
+            // Всього працюючих у підрозділі
+            $dprt->cnt_all = DB::table('SQL_LALL')
+                ->where('PREV', 0)
+                ->where('DEPARTMN', $depId)
+                ->count();
+
+            // Чоловіків (SEX = 1)
+            $dprt->cnt_men = DB::table('SQL_LALL')
+                ->where('PREV', 0)
+                ->where('DEPARTMN', $depId)
+                ->where('SEX', 1)
+                ->count();
+
+            // Жінок (SEX = 2)
+            $dprt->cnt_wom = DB::table('SQL_LALL')
+                ->where('PREV', 0)
+                ->where('DEPARTMN', $depId)
+                ->where('SEX', 2)
+                ->count();
+        }
+
         $title = 'Підрозділи';
 
         return view('departments_list', compact('departments', 'title'));
@@ -405,25 +390,23 @@ class MainController extends Controller
     }
 
     /**
-     * Деталізація матеріальної допомоги за рік з таблиці SQL_FINH (нижній регістр полів).
+     * Розшифровка матеріальної допомоги за обраний рік з таблиці SQL_SFIN.
      */
     public function finhelpYearDetails($year)
     {
-        $records = DB::table('SQL_FINH')
-            ->leftJoin('SQL_LALL', 'SQL_FINH.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->whereYear('SQL_FINH.date', $year) // Поле date у нижньому регістрі
+        // Отримуємо всі записи з SQL_SFIN за обраний рік та приєднуємо SQL_LALL для перевірки звільнення (PREV)
+        $records = DB::table('SQL_SFIN')
+            ->leftJoin('SQL_LALL', 'SQL_SFIN.PARTNER', '=', 'SQL_LALL.PARTNER')
+            ->where('SQL_SFIN.YEAR', $year)
             ->select(
-                'SQL_FINH.PARTNER',
-                'SQL_FINH.date',
-                'SQL_FINH.summa',
-                'SQL_FINH.finh_info', // Поле finh_info у нижньому регістрі
-                'SQL_LALL.TAB_NOM',
-                'SQL_LALL.FAM_RUS',
-                'SQL_LALL.IMA_RUS',
-                'SQL_LALL.OTCH_RUS',
+                'SQL_SFIN.PARTNER',
+                'SQL_SFIN.TAB_NOM',
+                'SQL_SFIN.FAM_RUS',
+                'SQL_SFIN.COUNT',
+                'SQL_SFIN.SUMMA',
                 'SQL_LALL.PREV as LALL_PREV'
             )
-            ->orderBy('SQL_LALL.FAM_RUS', 'asc')
+            ->orderBy('SQL_SFIN.FAM_RUS', 'asc')
             ->get();
 
         $title = "Матеріальна допомога за {$year} рік";
@@ -616,5 +599,41 @@ class MainController extends Controller
         $title = "Доходи та витрати за {$year} рік";
 
         return view('inc_exp_details', compact('incomes', 'expenses', 'title', 'year'));
+    }
+
+    /**
+     * Відображає список працюючих конкретного підрозділу (SQL_LALL.DEPARTMN = $departmn).
+     */
+    public function departmentPeopleList($departmn, $gender = 'all')
+    {
+        $dprtRecord = DB::table('SQL_DPRT')
+            ->where('DEPARTMN', $departmn)
+            ->first();
+
+        $arrDprt = (array) $dprtRecord;
+        $dprtName = $dprtRecord ? trim((string)($arrDprt['DPRT_INFO'] ?? $arrDprt['dprt_info'] ?? "Підрозділ #{$departmn}")) : "Підрозділ #{$departmn}";
+
+        $query = DB::table('SQL_LALL')
+            ->where('PREV', 0)
+            ->where('DEPARTMN', $departmn)
+            ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');
+
+        $titleSuffix = '';
+        if ($gender === 'men') {
+            $query->where('SEX', 1);
+            $titleSuffix = ' (Чоловіки)';
+        } elseif ($gender === 'women') {
+            $query->where('SEX', 2);
+            $titleSuffix = ' (Жінки)';
+        }
+
+        $people = $query->orderBy('FAM_RUS', 'asc')->get();
+        $title = "{$dprtName}{$titleSuffix}";
+
+        // Передаем параметр active_dprt без использования символа '#'
+        $backRoute = route('departments', ['active_dprt' => $departmn]);
+        $backLabel = '← Назад до підрозділів';
+
+        return view('working_list', compact('people', 'title', 'backRoute', 'backLabel'));
     }
 }

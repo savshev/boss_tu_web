@@ -11,7 +11,19 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout');
 // Маршрути, що вимагають підключення до динамічної бази даних
 Route::middleware(['tenant.db'])->group(function () {
     Route::get('/main', [MainController::class, 'index'])->name('main');
-    Route::get('/menu', [MainController::class, 'menu'])->name('main.next');
+    //Route::get('/menu', [MainController::class, 'menu'])->name('main.next');
+    // Если где-то еще требуется имя 'menu', можно задействовать оба имени или дубликат:
+    // Route::get('/menu', [MainController::class, 'menu'])->name('menu')->name('main.next');
+
+    // Назначаем маршруту меню имя 'menu'
+    Route::get('/menu', [MainController::class, 'menu'])->name('menu');
+
+    // Если на главной странице все еще вызывается route('main.next'),
+    // можно также добавить дублирующий маршрут с именем 'main.next':
+    Route::get('/menu-next', [MainController::class, 'menu'])->name('main.next');
+
+
+
     Route::get('/working', [MainController::class, 'working'])->name('working');
     // Новий маршрут для списку працюючих по категоріях
     Route::get('/working/list/{category}', [MainController::class, 'workingList'])->name('working.list');
@@ -41,4 +53,6 @@ Route::middleware(['tenant.db'])->group(function () {
     Route::get('/inc-exp/year/{year}', [MainController::class, 'incExpYearDetails'])->name('incexp.year');
     // вікно фіндопомоги
     Route::get('/finhelp/person-details/{partner}', [MainController::class, 'getPersonFinhelpDetails'])->name('finhelp.person_details');
+    // Маршрут списку працюючих підрозділу з фільтрацією за статтю
+    Route::get('/departments/{departmn}/list/{gender?}', [MainController::class, 'departmentPeopleList'])->name('departments.people');
 });

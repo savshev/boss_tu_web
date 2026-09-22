@@ -37,7 +37,8 @@ class AuthController extends Controller
 
         // 2. Формуємо ім'я бази даних з останніх 3 символів логіна (XXX)
         $dbCode = substr($login, -3);
-        $targetDatabase = "dataBase_tu_" . $dbCode;
+        //$targetDatabase = "dataBase_tu_" . $dbCode;
+        $targetDatabase = "db_tu_" . $dbCode;
 
         // 3. Переключаємо з'єднання Laravel на цільову базу
         Config::set('database.connections.mysql.database', $targetDatabase);

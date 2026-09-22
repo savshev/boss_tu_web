@@ -20,7 +20,8 @@ class ConnectTenantDatabase
         }
 
         // Формируем имя целевой базы данных
-        $targetDatabase = "dataBase_tu_" . session('db_code');
+        //$targetDatabase = "dataBase_tu_" . session('db_code');
+        $targetDatabase = "db_tu_" . session('db_code'); 
 
         // Динамически меняем конфигурацию базы данных
         Config::set('database.connections.mysql.database', $targetDatabase);

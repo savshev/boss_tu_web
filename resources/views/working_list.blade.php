@@ -113,9 +113,15 @@
         @endforelse
     </div>
 
-    <div class="action-buttons">
+    {{--<div class="action-buttons">
         <button type="button" class="btn-search-icon" onclick="toggleSearch()" title="Швидкий пошук">🔍</button>
         <a href="{{ route('working') }}" class="btn-back">← Назад до категорій</a>
+    </div>--}}
+    <!-- Динамічна кнопка повернення залежно від джерела (підрозділи або категорії) -->
+    <div class="action-buttons">
+        <a href="{{ $backRoute ?? route('working') }}" class="btn-back">
+            {{ $backLabel ?? '← Назад до категорій' }}
+        </a>
     </div>
 </div>
 

@@ -62,6 +62,9 @@
         .details-table th, .details-table td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #dee2e6; }
         .details-table th { background-color: #f8f9fa; color: #007bff; font-weight: bold; }
 
+        /* Зробити весь текст та числа у рядках даних жирним шрифтом */
+        .details-table tbody td { font-weight: bold; color: #111; }
+
         .btn-close-modal { padding: 8px 16px; background-color: #6c757d; color: white; border: none; border-radius: 4px; cursor: pointer; float: right; font-weight: bold; }
         .btn-close-modal:hover { background-color: #5a6268; }
     </style>
@@ -188,7 +191,7 @@
 <script>
     const currentPartner = "{{ $partnerVal }}";
 
-    function showDetails(type) {
+    /*function showDetails(type) {
         const overlay = document.getElementById('modalOverlay');
         const title = document.getElementById('modalTitle');
         const body = document.getElementById('modalBody');
@@ -231,6 +234,58 @@
             })
             .catch(err => {
                 body.innerHTML = '<div style="color:red;">Помилка завантаження даних.</div>';
+            });
+    }*/
+
+    function showDetails(type) {
+        const overlay = document.getElementById('modalOverlay');
+        const title = document.getElementById('modalTitle');
+        const body = document.getElementById('modalBody');
+
+        overlay.style.display = 'flex';
+        body.innerHTML = 'Завантаження даних...';
+
+        if (type === 'finh') title.innerText = 'Історія фіндопомоги';
+        if (type === 'tour') title.innerText = 'Історія путівок';
+        if (type === 'vkre') title.innerText = 'Історія позичок';
+
+        fetch(`/working/person/${currentPartner}/details/${type}`)
+            .then(async res => {
+                if (!res.ok) {
+                    const errData = await res.json().catch(() => ({}));
+                    throw new Error(errData.error || `HTTP status ${res.status}`);
+                }
+                return res.json();
+            })
+            .then(data => {
+                let html = '<table class="details-table">';
+
+                if (data.type === 'finh') {
+                    html += '<thead><tr><th>Дата</th><th>Сума (грн)</th><th>Інформація</th></tr></thead><tbody>';
+                    data.records.forEach(r => {
+                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td></tr>`;
+                    });
+                } else if (data.type === 'tour') {
+                    html += '<thead><tr><th>Дата</th><th>Сума</th><th>%</th><th>Сплачено</th><th>Інформація</th></tr></thead><tbody>';
+                    data.records.forEach(r => {
+                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td><td>${r.col5}</td></tr>`;
+                    });
+                } else if (data.type === 'vkre') {
+                    html += '<thead><tr><th style="width:110px;">Дата</th><th style="width:120px;">Взято (грн)</th><th style="width:120px;">Погашено (грн)</th><th>Інформація</th></tr></thead><tbody>';
+                    if (!data.records || data.records.length === 0) {
+                        html += '<tr><td colspan="4" style="text-align:center; color:#dc3545;">Записи позичок відсутні.</td></tr>';
+                    } else {
+                        data.records.forEach(r => {
+                            html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td></tr>`;
+                        });
+                    }
+                }
+
+                html += '</tbody></table>';
+                body.innerHTML = html;
+            })
+            .catch(err => {
+                body.innerHTML = `<div style="color:red; font-weight:bold; padding:15px;">Помилка: ${err.message}</div>`;
             });
     }
 
