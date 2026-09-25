@@ -29,7 +29,7 @@ jobs:
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           # Указываем твою папку на хостинге
-          server-dir: ./http/
+          server-dir: ./http/boss_tu_web/
           # Исключаем системные файлы
           exclude: |
             **/.git*
