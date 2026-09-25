@@ -1,4 +1,4 @@
-name: Deploy Laravel to FTP
+name: Deploy Laravel to FTP 1
 
 # Запускать робота при отправке кода в любую из главных веток
 on:
