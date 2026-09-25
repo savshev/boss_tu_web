@@ -1,0 +1,39 @@
+name: Deploy Laravel to FTP
+
+# Запускать робота каждый раз, когда мы отправляем (push) код в ветку main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  web-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 🚚 Получение свежего кода
+        uses: actions/checkout@v4
+
+      - name: ⚙️ Установка PHP 8.2
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.2'
+
+      - name: 📦 Установка библиотек (Composer)
+        # Устанавливаем библиотеки без пакетов для разработки (no-dev), чтобы сайт работал быстрее
+        run: composer install --optimize-autoloader --no-dev --no-progress --no-interaction
+
+      - name: 🚀 Загрузка файлов на хостинг по FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          # Папка на сервере. './' означает корень FTP. Если нужна другая, напиши, например, './public_html/'
+          server-dir: ./
+          # Исключаем лишнее, что не нужно на сервере
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/node_modules/**
+            .env.example
+            README.md
