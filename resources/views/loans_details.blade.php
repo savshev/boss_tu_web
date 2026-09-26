@@ -126,7 +126,8 @@
             }
 
             if (partner) {
-                window.location.href = `/working/person/${partner}`;
+                // Подставляем правильный базовый путь к карточке работающего
+                window.location.href = `{{ url('/working/person') }}/${partner}`;
             }
         }
 

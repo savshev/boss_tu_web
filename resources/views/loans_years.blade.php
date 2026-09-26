@@ -99,7 +99,8 @@
             sessionStorage.setItem('active_loan_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
-                window.location.href = `/loans/year/${year}`;
+                // Laravel добавит базовый путь с учетом папки public
+                window.location.href = `{{ url('/loans/year') }}/${year}`;
             }
         }
 
