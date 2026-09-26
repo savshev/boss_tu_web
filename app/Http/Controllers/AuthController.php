@@ -37,17 +37,28 @@ class AuthController extends Controller
 
         // 2. Формуємо ім'я бази даних з останніх 3 символів логіна (XXX)
         $dbCode = substr($login, -3);
-        // $targetDatabase = "dataBase_tu_" . $dbCode;
         $targetDatabase = "gbua_db_tu_" . $dbCode;
 
-        // 3. Переключаємо з'єднання Laravel на цільову базу
+        // 3. Зчитуємо масив баз даних (з файлу config/hosting_dbs.php)
+        $databases = config('hosting_dbs');
+
+        // Перевіряємо, чи прописані доступи для цієї бази
+        if (!$databases || !isset($databases[$targetDatabase])) {
+            return back()->withErrors(['login' => "Налаштування для бази '{$targetDatabase}' не знайдені."])->withInput();
+        }
+
+        // 4. Переключаємо з'єднання Laravel, підставляючи унікальний хост, логін та пароль
+        Config::set('database.connections.mysql.host', $databases[$targetDatabase]['host']);
         Config::set('database.connections.mysql.database', $targetDatabase);
+        Config::set('database.connections.mysql.username', $databases[$targetDatabase]['user']);
+        Config::set('database.connections.mysql.password', $databases[$targetDatabase]['pass']);
+
         DB::purge('mysql');
 
         try {
             DB::reconnect('mysql');
 
-            // 4. Шукаємо САМЕ ТОГО користувача, у якого ALIAS='USER_INFO' ТА STRING=введений пароль
+            // 5. Шукаємо САМЕ ТОГО користувача, у якого ALIAS='USER_INFO' ТА STRING=введений пароль
             $userRecord = DB::table('SQL_COMM')
                 ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['user_info'])
                 ->whereRaw("TRIM(STRING) = ?", [$password])
@@ -62,7 +73,7 @@ class AuthController extends Controller
             $userArray = (array) $userRecord;
             $userNameValue = $userArray['INFO'] ?? $userArray['info'] ?? 'Користувач';
 
-            // 5. Зберігаємо сесію авторизованого користувача
+            // 6. Зберігаємо сесію авторизованого користувача
             session([
                 'is_logged_in' => true,
                 'db_code' => $dbCode,
