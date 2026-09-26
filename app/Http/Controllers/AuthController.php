@@ -59,7 +59,8 @@ class AuthController extends Controller
             DB::reconnect('mysql');
 
             // 5. Шукаємо САМЕ ТОГО користувача, у якого ALIAS='USER_INFO' ТА STRING=введений пароль
-            $userRecord = DB::table('SQL_COMM')
+            // ИЗМЕНЕНИЕ: Написали sql_comm маленькими буквами, как в базе хостинга
+            $userRecord = DB::table('sql_comm')
                 ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['user_info'])
                 ->whereRaw("TRIM(STRING) = ?", [$password])
                 ->first();
@@ -84,8 +85,7 @@ class AuthController extends Controller
             return redirect()->route('main');
 
         } catch (QueryException $e) {
-            // Временно выводим реальную техническую ошибку от сервера MySQL для диагностики
-            return back()->withErrors(['login' => "Системна помилка БД: " . $e->getMessage()])->withInput();
+            return back()->withErrors(['login' => "Не вдалося підключитися до бази '{$targetDatabase}' або таблиці sql_comm."])->withInput();
         } catch (\Exception $e) {
             return back()->withErrors(['login' => 'Помилка авторизації: ' . $e->getMessage()])->withInput();
         }
