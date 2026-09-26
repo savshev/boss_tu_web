@@ -137,7 +137,8 @@
         function openPersonCard(item) {
             const partner = item.getAttribute('data-partner');
             if (partner) {
-                window.location.href = `/working/person/${partner}`;
+                // Laravel подставит сюда полный адрес вместе с папкой public
+                window.location.href = `{{ url('/working/person') }}/${partner}`;
             }
         }
 
