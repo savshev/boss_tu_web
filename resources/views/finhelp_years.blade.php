@@ -101,7 +101,8 @@
             sessionStorage.setItem('active_finh_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
-                window.location.href = `/finhelp/year/${year}`;
+                // Laravel автоматически добавит папку public к нашему адресу
+                window.location.href = `{{ url('/finhelp/year') }}/${year}`;
             }
         }
 
