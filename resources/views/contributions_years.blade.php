@@ -116,7 +116,8 @@
             sessionStorage.setItem('active_vzcn_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
-                window.location.href = `/contributions/year/${year}`;
+                // Laravel автоматически добавит папку public к нашему базовому адресу
+                window.location.href = `{{ url('/contributions/year') }}/${year}`;
             }
         }
 
