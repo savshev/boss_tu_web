@@ -111,7 +111,8 @@
             }
 
             if (partner) {
-                window.location.href = `/working/person/${partner}`;
+                // Функция url() подставит базовый путь с учетом папки public
+                window.location.href = `{{ url('/working/person') }}/${partner}`;
             }
         }
 
