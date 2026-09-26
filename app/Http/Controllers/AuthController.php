@@ -84,7 +84,8 @@ class AuthController extends Controller
             return redirect()->route('main');
 
         } catch (QueryException $e) {
-            return back()->withErrors(['login' => "Не вдалося підключитися до бази '{$targetDatabase}' або таблиці SQL_COMM."])->withInput();
+            // Временно выводим реальную техническую ошибку от сервера MySQL для диагностики
+            return back()->withErrors(['login' => "Системна помилка БД: " . $e->getMessage()])->withInput();
         } catch (\Exception $e) {
             return back()->withErrors(['login' => 'Помилка авторизації: ' . $e->getMessage()])->withInput();
         }
