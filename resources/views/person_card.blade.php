@@ -191,51 +191,8 @@
 <script>
     const currentPartner = "{{ $partnerVal }}";
 
-    /*function showDetails(type) {
-        const overlay = document.getElementById('modalOverlay');
-        const title = document.getElementById('modalTitle');
-        const body = document.getElementById('modalBody');
-
-        overlay.style.display = 'flex';
-        body.innerHTML = 'Завантаження даних...';
-
-        if (type === 'finh') title.innerText = 'Історія фіндопомоги';
-        if (type === 'tour') title.innerText = 'Історія путівок';
-        if (type === 'vkre') title.innerText = 'Історія позичок';
-
-        fetch(`/working/person/${currentPartner}/details/${type}`)
-            .then(res => res.json())
-            .then(data => {
-                let html = '<table class="details-table">';
-
-                if (data.type === 'finh') {
-                    html += '<thead><tr><th>Дата</th><th>Сума (грн)</th><th>Інформація</th></tr></thead><tbody>';
-                    data.records.forEach(r => {
-                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td></tr>`;
-                    });
-                } else if (data.type === 'tour') {
-                    html += '<thead><tr><th>Дата</th><th>Сума</th><th>%</th><th>Сплачено</th><th>Інформація</th></tr></thead><tbody>';
-                    data.records.forEach(r => {
-                        html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td><td>${r.col5}</td></tr>`;
-                    });
-                } else if (data.type === 'vkre') {
-                    html += '<thead><tr><th style="width:110px;">Дата</th><th style="width:120px;">Взято (грн)</th><th style="width:120px;">Погашено (грн)</th><th>Інформація</th></tr></thead><tbody>';
-                    if (data.records.length === 0) {
-                        html += '<tr><td colspan="4" style="text-align:center; color:#dc3545;">Записи позичок відсутні.</td></tr>';
-                    } else {
-                        data.records.forEach(r => {
-                            html += `<tr><td>${r.col1}</td><td>${r.col2}</td><td>${r.col3}</td><td>${r.col4}</td></tr>`;
-                        });
-                    }
-                }
-
-                html += '</tbody></table>';
-                body.innerHTML = html;
-            })
-            .catch(err => {
-                body.innerHTML = '<div style="color:red;">Помилка завантаження даних.</div>';
-            });
-    }*/
+    // 1. Формируем правильный базовый адрес с помощью Laravel
+    const baseUrl = "{{ url('/working/person') }}";
 
     function showDetails(type) {
         const overlay = document.getElementById('modalOverlay');
@@ -249,7 +206,10 @@
         if (type === 'tour') title.innerText = 'Історія путівок';
         if (type === 'vkre') title.innerText = 'Історія позичок';
 
-        fetch(`/working/person/${currentPartner}/details/${type}`)
+        // 2. Склеиваем правильный адрес для fetch запроса
+        const fetchUrl = `${baseUrl}/${currentPartner}/details/${type}`;
+
+        fetch(fetchUrl)
             .then(async res => {
                 if (!res.ok) {
                     const errData = await res.json().catch(() => ({}));
