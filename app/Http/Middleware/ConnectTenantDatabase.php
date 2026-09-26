@@ -10,23 +10,28 @@ use Illuminate\Support\Facades\DB;
 class ConnectTenantDatabase
 {
     /**
-     * Автоматически переключает подключение MySQL на базу текущего пользователя.
+     * Обрабатывает входящий запрос.
      */
     public function handle(Request $request, Closure $next)
     {
-        // Проверяем, авторизован ли пользователь
-        if (!session('is_logged_in') || !session('db_code')) {
-            return redirect()->route('login');
+        // Проверяем, авторизован ли пользователь и есть ли в сессии имя базы
+        if (session()->has('db_name')) {
+            $targetDatabase = session('db_name');
+
+            // Зчитуємо масив баз даних (з файлу config/hosting_dbs.php)
+            $databases = config('hosting_dbs');
+
+            if ($databases && isset($databases[$targetDatabase])) {
+                // Переключаємо з'єднання Laravel, підставляючи унікальний хост, логін та пароль
+                Config::set('database.connections.mysql.host', $databases[$targetDatabase]['host']);
+                Config::set('database.connections.mysql.database', $targetDatabase);
+                Config::set('database.connections.mysql.username', $databases[$targetDatabase]['user']);
+                Config::set('database.connections.mysql.password', $databases[$targetDatabase]['pass']);
+
+                DB::purge('mysql');
+                DB::reconnect('mysql');
+            }
         }
-
-        // Формируем имя целевой базы данных
-        // $targetDatabase = "dataBase_tu_" . session('db_code');
-        $targetDatabase = "gbua_db_tu_" . session('db_code');
-
-        // Динамически меняем конфигурацию базы данных
-        Config::set('database.connections.mysql.database', $targetDatabase);
-        DB::purge('mysql');
-        DB::reconnect('mysql');
 
         return $next($request);
     }
