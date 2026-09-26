@@ -119,7 +119,8 @@
             sessionStorage.setItem('active_incexp_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
-                window.location.href = `/inc-exp/year/${year}`;
+                // Laravel автоматически добавит папку public к нашему базовому адресу
+                window.location.href = `{{ url('/inc-exp/year') }}/${year}`;
             }
         }
 
