@@ -70,7 +70,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи позик у таблиці SQL_SVKR відсутні.
+                Записи позик у таблиці sql_svkr відсутні.
             </div>
         @endforelse
     </div>

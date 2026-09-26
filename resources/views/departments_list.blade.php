@@ -85,7 +85,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Підрозділи відсутні у таблиці SQL_DPRT.
+                Підрозділи відсутні у таблиці sql_dprt.
             </div>
         @endforelse
     </div>

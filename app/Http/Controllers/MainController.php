@@ -8,17 +8,17 @@ use Illuminate\Support\Facades\DB;
 class MainController extends Controller
 {
     /**
-     * Відображає головну сторінку з параметрами з таблиці SQL_COMM.
+     * Відображає головну сторінку з параметрами з таблиці sql_comm.
      */
     public function index()
     {
         // 1. Отримуємо дату збору даних (ALIAS = 'DATE_DATA')
-        $dateRecord = DB::table('SQL_COMM')
+        $dateRecord = DB::table('sql_comm')
             ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['date_data'])
             ->first();
 
         // 2. Отримуємо найменування підприємства (ALIAS = 'OWNER')
-        $ownerRecord = DB::table('SQL_COMM')
+        $ownerRecord = DB::table('sql_comm')
             ->whereRaw("LOWER(TRIM(ALIAS)) = ?", ['owner'])
             ->first();
 
@@ -45,13 +45,13 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає сторінку "Працюючі" з реальними показниками з таблиці SQL_COMM.
+     * Відображає сторінку "Працюючі" з реальними показниками з таблиці sql_comm.
      */
     public function working()
     {
         // Допоміжна функція для зчитування числового значення з поля STRING за ALIAS
         $getValueByAlias = function ($alias) {
-            $record = DB::table('SQL_COMM')
+            $record = DB::table('sql_comm')
                 ->whereRaw("LOWER(TRIM(ALIAS)) = ?", [strtolower(trim($alias))])
                 ->first();
 
@@ -126,7 +126,7 @@ class MainController extends Controller
         ];
 
         // Базова вибірка всіх працюючих (PREV = 0 та DEPARTMN > 0)
-        $query = DB::table('SQL_LALL')
+        $query = DB::table('sql_lall')
             ->where('PREV', 0)
             ->where('DEPARTMN', '>', 0)
             ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');
@@ -211,12 +211,12 @@ class MainController extends Controller
 
 
     /**
-     * Відображає детальну картку працівника з таблиці SQL_LALL за полем PARTNER.
+     * Відображає детальну картку працівника з таблиці sql_lall за полем PARTNER.
      */
     public function personCard($partner)
     {
-        // Шукаємо запис у SQL_LALL за унікальним полем PARTNER
-        $person = DB::table('SQL_LALL')
+        // Шукаємо запис у sql_lall за унікальним полем PARTNER
+        $person = DB::table('sql_lall')
             ->where('PARTNER', $partner)
             ->first();
 
@@ -228,15 +228,15 @@ class MainController extends Controller
     }
 
     /**
-     * Повертає деталізовані записи з SQL_FINH, SQL_TOUR або SQL_VKRE за полем PARTNER.
+     * Повертає деталізовані записи з sql_finh, sql_tour або sql_vkre за полем PARTNER.
      */
     public function personDetails($partner, $type)
     {
         $data = [];
 
         if ($type === 'finh') {
-            // Фіндопомога z SQL_FINH
-            $records = DB::table('SQL_FINH')->where('PARTNER', $partner)->get();
+            // Фіндопомога z sql_finh
+            $records = DB::table('sql_finh')->where('PARTNER', $partner)->get();
             foreach ($records as $r) {
                 $arr = (array) $r;
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
@@ -251,8 +251,8 @@ class MainController extends Controller
                 ];
             }
         } elseif ($type === 'tour') {
-            // Путівки z SQL_TOUR
-            $records = DB::table('SQL_TOUR')->where('PARTNER', $partner)->get();
+            // Путівки z sql_tour
+            $records = DB::table('sql_tour')->where('PARTNER', $partner)->get();
             foreach ($records as $r) {
                 $arr = (array) $r;
                 $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
@@ -270,9 +270,9 @@ class MainController extends Controller
                 ];
             }
         } elseif ($type === 'vkre') {
-            // Позики z SQL_VKRE с отловом возможных ошибок SQL
+            // Позики z sql_vkre с отловом возможных ошибок SQL
             try {
-                $records = DB::table('SQL_VKRE')->where('PARTNER', $partner)->get();
+                $records = DB::table('sql_vkre')->where('PARTNER', $partner)->get();
                 foreach ($records as $r) {
                     $arr = (array) $r;
                     $getCol = fn($k) => trim((string)($arr[strtoupper($k)] ?? $arr[strtolower($k)] ?? ''));
@@ -323,7 +323,7 @@ class MainController extends Controller
      */
     public function veteransList(Request $request)
     {
-        $people = DB::table('SQL_LALL')
+        $people = DB::table('sql_lall')
             ->where('PREV', 0)
             ->where('DEPARTMN', 0)
             ->get();
@@ -334,34 +334,34 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає список підрозділів з таблиці SQL_DPRT (без ветеранів DEPARTMN = 0) та кількість працюючих.
+     * Відображає список підрозділів з таблиці sql_dprt (без ветеранів DEPARTMN = 0) та кількість працюючих.
      */
     public function departmentsList()
     {
-        // Отримуємо всі підрозділи з SQL_DPRT, окрім ветеранів (DEPARTMN > 0)
-        $departments = DB::table('SQL_DPRT')
+        // Отримуємо всі підрозділи з sql_dprt, окрім ветеранів (DEPARTMN > 0)
+        $departments = DB::table('sql_dprt')
             ->where('DEPARTMN', '>', 0)
             ->get();
 
-        // Для кожного підрозділу підраховуємо кількість працюючих з SQL_LALL (PREV = 0)
+        // Для кожного підрозділу підраховуємо кількість працюючих з sql_lall (PREV = 0)
         foreach ($departments as $dprt) {
             $depId = $dprt->DEPARTMN ?? $dprt->departmn ?? 0;
 
             // Всього працюючих у підрозділі
-            $dprt->cnt_all = DB::table('SQL_LALL')
+            $dprt->cnt_all = DB::table('sql_lall')
                 ->where('PREV', 0)
                 ->where('DEPARTMN', $depId)
                 ->count();
 
             // Чоловіків (SEX = 1)
-            $dprt->cnt_men = DB::table('SQL_LALL')
+            $dprt->cnt_men = DB::table('sql_lall')
                 ->where('PREV', 0)
                 ->where('DEPARTMN', $depId)
                 ->where('SEX', 1)
                 ->count();
 
             // Жінок (SEX = 2)
-            $dprt->cnt_wom = DB::table('SQL_LALL')
+            $dprt->cnt_wom = DB::table('sql_lall')
                 ->where('PREV', 0)
                 ->where('DEPARTMN', $depId)
                 ->where('SEX', 2)
@@ -378,7 +378,7 @@ class MainController extends Controller
      */
     public function finhelpYears()
     {
-        $yearsData = DB::table('SQL_SFIN')
+        $yearsData = DB::table('sql_sfin')
             ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
             ->groupBy('YEAR')
             ->orderBy('YEAR', 'desc')
@@ -390,23 +390,23 @@ class MainController extends Controller
     }
 
     /**
-     * Розшифровка матеріальної допомоги за обраний рік з таблиці SQL_SFIN.
+     * Розшифровка матеріальної допомоги за обраний рік з таблиці sql_sfin.
      */
     public function finhelpYearDetails($year)
     {
-        // Отримуємо всі записи з SQL_SFIN за обраний рік та приєднуємо SQL_LALL для перевірки звільнення (PREV)
-        $records = DB::table('SQL_SFIN')
-            ->leftJoin('SQL_LALL', 'SQL_SFIN.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->where('SQL_SFIN.YEAR', $year)
+        // Отримуємо всі записи з sql_sfin за обраний рік та приєднуємо sql_lall для перевірки звільнення (PREV)
+        $records = DB::table('sql_sfin')
+            ->leftJoin('sql_lall', 'sql_sfin.PARTNER', '=', 'sql_lall.PARTNER')
+            ->where('sql_sfin.YEAR', $year)
             ->select(
-                'SQL_SFIN.PARTNER',
-                'SQL_SFIN.TAB_NOM',
-                'SQL_SFIN.FAM_RUS',
-                'SQL_SFIN.COUNT',
-                'SQL_SFIN.SUMMA',
-                'SQL_LALL.PREV as LALL_PREV'
+                'sql_sfin.PARTNER',
+                'sql_sfin.TAB_NOM',
+                'sql_sfin.FAM_RUS',
+                'sql_sfin.COUNT',
+                'sql_sfin.SUMMA',
+                'sql_lall.PREV as LALL_PREV'
             )
-            ->orderBy('SQL_SFIN.FAM_RUS', 'asc')
+            ->orderBy('sql_sfin.FAM_RUS', 'asc')
             ->get();
 
         $title = "Матеріальна допомога за {$year} рік";
@@ -415,11 +415,11 @@ class MainController extends Controller
     }
 
     /**
-     * Рівень 1: Групування путівок за роками з таблиці SQL_TDET.
+     * Рівень 1: Групування путівок за роками з таблиці sql_tdet.
      */
     public function toursYears()
     {
-        $yearsData = DB::table('SQL_TDET')
+        $yearsData = DB::table('sql_tdet')
             ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
             ->groupBy('YEAR')
             ->orderBy('YEAR', 'desc')
@@ -431,11 +431,11 @@ class MainController extends Controller
     }
 
     /**
-     * Рівень 2: Список закладів путівок у вибраному році з SQL_TDET.
+     * Рівень 2: Список закладів путівок у вибраному році з sql_tdet.
      */
     public function toursYearResorts($year)
     {
-        $resorts = DB::table('SQL_TDET')
+        $resorts = DB::table('sql_tdet')
             ->where('YEAR', $year)
             ->orderBy('TOUR_INFO', 'asc')
             ->get();
@@ -446,23 +446,23 @@ class MainController extends Controller
     }
 
     /**
-     * Рівень 3: Список осіб, які отримали путівки до конкретного закладу з SQL_STOU.
+     * Рівень 3: Список осіб, які отримали путівки до конкретного закладу з sql_stou.
      */
     public function toursResortPeople($year, $sprtrs)
     {
-        $records = DB::table('SQL_STOU')
-            ->leftJoin('SQL_LALL', 'SQL_STOU.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->where('SQL_STOU.YEAR', $year)
-            ->where('SQL_STOU.SPRTRS', $sprtrs)
+        $records = DB::table('sql_stou')
+            ->leftJoin('sql_lall', 'sql_stou.PARTNER', '=', 'sql_lall.PARTNER')
+            ->where('sql_stou.YEAR', $year)
+            ->where('sql_stou.SPRTRS', $sprtrs)
             ->select(
-                'SQL_STOU.*',
-                'SQL_LALL.PREV as LALL_PREV'
+                'sql_stou.*',
+                'sql_lall.PREV as LALL_PREV'
             )
-            ->orderBy('SQL_STOU.FAM_RUS', 'asc')
+            ->orderBy('sql_stou.FAM_RUS', 'asc')
             ->get();
 
         // Отримуємо назву закладу для заголовка
-        $resortRecord = DB::table('SQL_TDET')
+        $resortRecord = DB::table('sql_tdet')
             ->where('YEAR', $year)
             ->where('SPRTRS', $sprtrs)
             ->first();
@@ -476,11 +476,11 @@ class MainController extends Controller
     }
 
     /**
-     * Отображает список лет займов с группировкой по YEAR из SQL_SVKR.
+     * Отображает список лет займов с группировкой по YEAR из sql_svkr.
      */
     public function loansYears()
     {
-        $yearsData = DB::table('SQL_SVKR')
+        $yearsData = DB::table('sql_svkr')
             ->select('YEAR', DB::raw('SUM(SUMMA) as SUMMA'), DB::raw('SUM(COUNT) as COUNT'))
             ->groupBy('YEAR')
             ->orderBy('YEAR', 'desc')
@@ -496,14 +496,14 @@ class MainController extends Controller
      */
     public function loansYearDetails($year)
     {
-        $records = DB::table('SQL_SVKR')
-            ->leftJoin('SQL_LALL', 'SQL_SVKR.PARTNER', '=', 'SQL_LALL.PARTNER')
-            ->where('SQL_SVKR.YEAR', $year)
+        $records = DB::table('sql_svkr')
+            ->leftJoin('sql_lall', 'sql_svkr.PARTNER', '=', 'sql_lall.PARTNER')
+            ->where('sql_svkr.YEAR', $year)
             ->select(
-                'SQL_SVKR.*',
-                'SQL_LALL.PREV as LALL_PREV'
+                'sql_svkr.*',
+                'sql_lall.PREV as LALL_PREV'
             )
-            ->orderBy('SQL_SVKR.FAM_RUS', 'asc')
+            ->orderBy('sql_svkr.FAM_RUS', 'asc')
             ->get();
 
         $title = "Позики за {$year} рік";
@@ -516,7 +516,7 @@ class MainController extends Controller
      */
     public function contributionsYears()
     {
-        $yearsData = DB::table('SQL_VZCN')
+        $yearsData = DB::table('sql_vzcn')
             ->where('MONTH', 13)
             ->orderBy('YEAR', 'desc')
             ->get();
@@ -531,7 +531,7 @@ class MainController extends Controller
      */
     public function contributionsYearDetails($year)
     {
-        $records = DB::table('SQL_VZCN')
+        $records = DB::table('sql_vzcn')
             ->where('YEAR', $year)
             ->where('MONTH', '!=', 13)
             ->orderByRaw('CAST(MONTH AS UNSIGNED) ASC') // Числове сортування за місяцями від 1 до 12
@@ -547,7 +547,7 @@ class MainController extends Controller
      */
     public function incExpYears()
     {
-        $yearsData = DB::table('SQL_INOT')
+        $yearsData = DB::table('sql_inot')
             ->where('WHAT', 0)
             ->orderBy('YEAR', 'desc')
             ->get();
@@ -558,11 +558,11 @@ class MainController extends Controller
     }
 
     /**
-     * Отримання всіх записів матеріальної допомоги працівника з SQL_FINH для модального вікна (JSON).
+     * Отримання всіх записів матеріальної допомоги працівника з sql_finh для модального вікна (JSON).
      */
     public function getPersonFinhelpDetails($partner)
     {
-        $records = DB::table('SQL_FINH')
+        $records = DB::table('sql_finh')
             ->where('PARTNER', $partner)
             ->orderBy('date', 'desc')
             ->select('date', 'finh_info', 'summa')
@@ -577,23 +577,23 @@ class MainController extends Controller
     public function incExpYearDetails($year)
     {
         // 1. Статті доходів (WHAT = 1, CODE_OT = 0)
-        $incomes = DB::table('SQL_INOT')
-            ->leftJoin('SQL_BSCH', 'SQL_INOT.CODE_IN', '=', 'SQL_BSCH.CODE')
-            ->where('SQL_INOT.YEAR', $year)
-            ->where('SQL_INOT.WHAT', 1)
-            ->where('SQL_INOT.CODE_OT', 0)
-            ->select('SQL_INOT.*', 'SQL_BSCH.TIT', 'SQL_BSCH.INFO')
-            ->orderBy('SQL_BSCH.TIT', 'asc')
+        $incomes = DB::table('sql_inot')
+            ->leftJoin('sql_bsch', 'sql_inot.CODE_IN', '=', 'sql_bsch.CODE')
+            ->where('sql_inot.YEAR', $year)
+            ->where('sql_inot.WHAT', 1)
+            ->where('sql_inot.CODE_OT', 0)
+            ->select('sql_inot.*', 'sql_bsch.TIT', 'sql_bsch.INFO')
+            ->orderBy('sql_bsch.TIT', 'asc')
             ->get();
 
         // 2. Статті витрат (WHAT = 1, CODE_IN = 0)
-        $expenses = DB::table('SQL_INOT')
-            ->leftJoin('SQL_BSCH', 'SQL_INOT.CODE_OT', '=', 'SQL_BSCH.CODE')
-            ->where('SQL_INOT.YEAR', $year)
-            ->where('SQL_INOT.WHAT', 1)
-            ->where('SQL_INOT.CODE_IN', 0)
-            ->select('SQL_INOT.*', 'SQL_BSCH.TIT', 'SQL_BSCH.INFO')
-            ->orderBy('SQL_BSCH.TIT', 'asc')
+        $expenses = DB::table('sql_inot')
+            ->leftJoin('sql_bsch', 'sql_inot.CODE_OT', '=', 'sql_bsch.CODE')
+            ->where('sql_inot.YEAR', $year)
+            ->where('sql_inot.WHAT', 1)
+            ->where('sql_inot.CODE_IN', 0)
+            ->select('sql_inot.*', 'sql_bsch.TIT', 'sql_bsch.INFO')
+            ->orderBy('sql_bsch.TIT', 'asc')
             ->get();
 
         $title = "Доходи та витрати за {$year} рік";
@@ -602,18 +602,18 @@ class MainController extends Controller
     }
 
     /**
-     * Відображає список працюючих конкретного підрозділу (SQL_LALL.DEPARTMN = $departmn).
+     * Відображає список працюючих конкретного підрозділу (sql_lall.DEPARTMN = $departmn).
      */
     public function departmentPeopleList($departmn, $gender = 'all')
     {
-        $dprtRecord = DB::table('SQL_DPRT')
+        $dprtRecord = DB::table('sql_dprt')
             ->where('DEPARTMN', $departmn)
             ->first();
 
         $arrDprt = (array) $dprtRecord;
         $dprtName = $dprtRecord ? trim((string)($arrDprt['DPRT_INFO'] ?? $arrDprt['dprt_info'] ?? "Підрозділ #{$departmn}")) : "Підрозділ #{$departmn}";
 
-        $query = DB::table('SQL_LALL')
+        $query = DB::table('sql_lall')
             ->where('PREV', 0)
             ->where('DEPARTMN', $departmn)
             ->select('PARTNER', 'TAB_NOM', 'FAM_RUS', 'IMA_RUS', 'OTCH_RUS', 'DPRT_INFO', 'PROF_INFO');

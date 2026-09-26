@@ -23,19 +23,19 @@
 <div class="card">
     <h2>Перегляд даних ППО</h2>
 
-    <!-- 1. Ім'я користувача (SQL_COMM.INFO) -->
+    <!-- 1. Ім'я користувача (sql_comm.INFO) -->
     <div class="param-group">
         <div class="param-label">Користувач:</div>
         <div class="param-value">{{ $userName }}</div>
     </div>
 
-    <!-- 2. Підприємство (SQL_COMM.INFO для OWNER) -->
+    <!-- 2. Підприємство (sql_comm.INFO для OWNER) -->
     <div class="param-group">
         <div class="param-label">Підприємство:</div>
         <div class="param-value">{{ $ownerName }}</div>
     </div>
 
-    <!-- 3. Дата збору даних (SQL_COMM.INFO для DATE_DATA) -->
+    <!-- 3. Дата збору даних (sql_comm.INFO для DATE_DATA) -->
     <div class="param-group">
         <div class="param-label">Дата збору даних:</div>
         <div class="param-value">{{ $dateData }}</div>

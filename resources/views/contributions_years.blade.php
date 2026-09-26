@@ -76,7 +76,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи чисельності та внесків у таблиці SQL_VZCN відсутні.
+                Записи чисельності та внесків у таблиці sql_vzcn відсутні.
             </div>
         @endforelse
     </div>

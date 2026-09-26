@@ -72,7 +72,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи фіндопомоги у таблиці SQL_SFIN відсутні.
+                Записи фіндопомоги у таблиці sql_sfin відсутні.
             </div>
         @endforelse
     </div>

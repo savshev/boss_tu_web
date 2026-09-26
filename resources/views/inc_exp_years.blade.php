@@ -80,7 +80,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи доходів та витрат у таблиці SQL_INOT відсутні.
+                Записи доходів та витрат у таблиці sql_inot відсутні.
             </div>
         @endforelse
     </div>

@@ -66,7 +66,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи ветеранів у таблиці SQL_LALL відсутні.
+                Записи ветеранів у таблиці sql_lall відсутні.
             </div>
         @endforelse
     </div>

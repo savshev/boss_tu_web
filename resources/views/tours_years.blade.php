@@ -70,7 +70,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи путівок у таблиці SQL_TDET відсутні.
+                Записи путівок у таблиці sql_tdet відсутні.
             </div>
         @endforelse
     </div>

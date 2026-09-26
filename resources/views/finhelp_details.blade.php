@@ -79,7 +79,7 @@
             </div>
         @empty
             <div style="text-align: center; padding: 30px; color: #dc3545; font-weight: bold;">
-                Записи матеріальної допомоги у таблиці SQL_SFIN за {{ $year }} рік відсутні.
+                Записи матеріальної допомоги у таблиці sql_sfin за {{ $year }} рік відсутні.
             </div>
         @endforelse
     </div>
