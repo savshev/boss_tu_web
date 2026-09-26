@@ -89,7 +89,8 @@
         function openPersonCard(item) {
             const partner = item.getAttribute('data-partner');
             if (partner) {
-                window.location.href = `/working/person/${partner}`;
+                // Laravel автоматически подставит полный адрес с учетом папки public
+                window.location.href = `{{ url('/working/person') }}/${partner}`;
             }
         }
 
