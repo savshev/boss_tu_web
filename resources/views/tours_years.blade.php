@@ -99,7 +99,8 @@
             sessionStorage.setItem('active_tour_year_index', index);
             const year = item.getAttribute('data-year');
             if (year) {
-                window.location.href = `/tours/year/${year}`;
+                // Laravel сам сгенерирует правильный путь с учетом папки public
+                window.location.href = `{{ url('/tours/year') }}/${year}`;
             }
         }
 
