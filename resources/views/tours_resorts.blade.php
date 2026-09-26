@@ -102,7 +102,8 @@
             sessionStorage.setItem('active_tour_resort_index', index);
             const sprtrs = item.getAttribute('data-sprtrs');
             if (sprtrs) {
-                window.location.href = `/tours/year/{{ $year }}/resort/${sprtrs}`;
+                // url() подставит базу с public, Blade добавит год, а JS — код путевки
+                window.location.href = `{{ url('/tours/year') }}/{{ $year }}/resort/${sprtrs}`;
             }
         }
 
