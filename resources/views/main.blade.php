@@ -58,27 +58,29 @@
         const form = document.getElementById('logoutForm');
         const formData = new FormData(form);
 
-        // 1. Отправляем запрос на выход "в фоне", не перезагружая страницу
+        // Отправляем запрос на закрытие сессии
         fetch(form.action, {
             method: 'POST',
             body: formData,
             headers: {
-                'X-Requested-With': 'XMLHttpRequest' // Говорим Laravel, что это AJAX-запрос
+                'X-Requested-With': 'XMLHttpRequest'
             }
         }).then(() => {
-            // 2. Сессия закрыта! Пытаемся закрыть вкладку браузера
-            window.open('', '_self', '');
+            // Сессия закрыта. Агрессивно пытаемся закрыть вкладку
+            window.open(location, '_self').close();
+            window.open('', '_parent', '');
             window.close();
 
-            // 3. Запасной вариант: если браузер блокирует закрытие вкладок,
-            // перекидываем на страницу входа (в корень сайта)
+            // Если через 500 миллисекунд окно всё еще открыто (браузер заблокировал закрытие),
+            // просто очищаем экран, никаких переходов!
             setTimeout(() => {
-                window.location.href = "{{ url('/') }}";
+                document.body.innerHTML = "<div style='text-align:center; margin-top:100px; font-family:sans-serif;'>" +
+                    "<h2>Сеанс безпечно завершено.</h2>" +
+                    "<p>Тепер ви можете закрити цю вкладку (натисніть хрестик).</p>" +
+                    "</div>";
             }, 500);
         }).catch((err) => {
             console.error('Помилка виходу:', err);
-            // В случае сетевой ошибки всё равно перекидываем на главную
-            window.location.href = "{{ url('/') }}";
         });
     }
 </script>
