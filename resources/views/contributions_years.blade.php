@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ $title }} | boss_tu_web</title>
+    <!-- Подключаем иконку с помощью функции asset() -->
+    <link rel="icon" href="{{ asset('favicon.png') }}" type="image/png">
     <!-- Підключаємо Chart.js для побудови графіків -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
