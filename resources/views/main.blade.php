@@ -66,19 +66,16 @@
                 'X-Requested-With': 'XMLHttpRequest'
             }
         }).then(() => {
-            // Сессия закрыта. Агрессивно пытаемся закрыть вкладку
-            window.open(location, '_self').close();
-            window.open('', '_parent', '');
+            // 1. СНАЧАЛА полностью очищаем экран от программы, чтобы ничего не зависло
+            document.body.innerHTML = "<div style='text-align:center; margin-top:100px; font-family:sans-serif;'>" +
+                "<h2>Сеанс безпечно завершено.</h2>" +
+                "<p>Тепер ви можете закрити цю вкладку (натисніть хрестик).</p>" +
+                "</div>";
+
+            // 2. ПОТОМ аккуратно просим браузер закрыть вкладку (без перезагрузок!)
+            window.open('', '_self', '');
             window.close();
 
-            // Если через 500 миллисекунд окно всё еще открыто (браузер заблокировал закрытие),
-            // просто очищаем экран, никаких переходов!
-            setTimeout(() => {
-                document.body.innerHTML = "<div style='text-align:center; margin-top:100px; font-family:sans-serif;'>" +
-                    "<h2>Сеанс безпечно завершено.</h2>" +
-                    "<p>Тепер ви можете закрити цю вкладку (натисніть хрестик).</p>" +
-                    "</div>";
-            }, 500);
         }).catch((err) => {
             console.error('Помилка виходу:', err);
         });
