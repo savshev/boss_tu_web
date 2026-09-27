@@ -45,11 +45,42 @@
     <div class="buttons-container">
         <a href="{{ route('main.next') }}" class="btn btn-next">Переглянути</a>
 
-        <form action="{{ route('logout') }}" method="POST" style="flex: 1; margin: 0;">
+        <!-- Добавили id="logoutForm" для связи с JavaScript -->
+        <form id="logoutForm" action="{{ route('logout') }}" method="POST" style="flex: 1; margin: 0;">
             @csrf
-            <button type="submit" class="btn btn-logout" style="width: 100%;">Вихід</button>
+            <!-- Поменяли type="submit" на type="button" и добавили onclick -->
+            <button type="button" class="btn btn-logout" style="width: 100%;" onclick="logoutAndClose()">Вихід</button>
         </form>
     </div>
 </div>
+<script>
+    function logoutAndClose() {
+        const form = document.getElementById('logoutForm');
+        const formData = new FormData(form);
+
+        // 1. Отправляем запрос на выход "в фоне", не перезагружая страницу
+        fetch(form.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest' // Говорим Laravel, что это AJAX-запрос
+            }
+        }).then(() => {
+            // 2. Сессия закрыта! Пытаемся закрыть вкладку браузера
+            window.open('', '_self', '');
+            window.close();
+
+            // 3. Запасной вариант: если браузер блокирует закрытие вкладок,
+            // перекидываем на страницу входа (в корень сайта)
+            setTimeout(() => {
+                window.location.href = "{{ url('/') }}";
+            }, 500);
+        }).catch((err) => {
+            console.error('Помилка виходу:', err);
+            // В случае сетевой ошибки всё равно перекидываем на главную
+            window.location.href = "{{ url('/') }}";
+        });
+    }
+</script>
 </body>
 </html>
