@@ -75,8 +75,8 @@
 
                 $dprtInfo   = trim((string)($arr['DPRT_INFO'] ?? $arr['dprt_info'] ?? ''));$profInfo   = trim((string)($arr['PROF_INFO'] ?? $arr['prof_info'] ?? ''));
 
-                // Формат ПІБ: FAM_RUS + ' ' + OTCH_RUS + ' ' + IMA_RUS
-                $fullFio    = trim(preg_replace('/\s+/', ' ', "{$fam} {$otch} {$ima}"));
+                // Формат ПІБ: FAM_RUS + ' ' + IMA_RUS + ' ' + OTCH_RUS
+                $fullFio    = trim(preg_replace('/\s+/', ' ', "{$fam} {$ima} {$otch}"));
                 $tabDisplay = str_pad($tabNomRaw, 8, ' ', STR_PAD_LEFT);
             @endphp
             <div class="person-item {{ $index === 0 ? 'active' : '' }}"
