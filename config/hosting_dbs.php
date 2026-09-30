@@ -48,5 +48,29 @@ return [
         'host' => 'mysql317.1gb.ua',
         'user' => 'gbua_db_tu_122',
         'pass' => '68348a9889a'
+    ],
+
+    'gbua_db_tu_110' => [
+        'host' => 'mysql314.1gb.ua',
+        'user' => 'gbua_db_tu_110',
+        'pass' => 'f8b7a26b5yzx'
+    ],
+
+    'gbua_db_tu_114' => [
+        'host' => 'mysql314.1gb.ua',
+        'user' => 'gbua_db_tu_114',
+        'pass' => 'cd82ffc4rty'
+    ],
+
+    'gbua_db_tu_116' => [
+        'host' => 'mysql314.1gb.ua',
+        'user' => 'gbua_db_tu_116',
+        'pass' => '7e5f424fe9a'
+    ],
+
+    'gbua_db_tu_123' => [
+        'host' => 'mysql314.1gb.ua',
+        'user' => 'gbua_db_tu_123',
+        'pass' => '4445ca8d489a'
     ]
 ];
