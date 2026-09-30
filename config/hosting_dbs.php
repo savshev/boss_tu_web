@@ -33,5 +33,20 @@ return [
         'host' => 'mysql317.1gb.ua',
         'user' => 'gbua_db_tu_108',
         'pass' => 'baeac5b86vn'
+    ],
+    'gbua_db_tu_107' => [
+        'host' => 'mysql317.1gb.ua',
+        'user' => 'gbua_db_tu_107',
+        'pass' => '283z8a99sgh'
+    ],
+    'gbua_db_tu_121' => [
+        'host' => 'mysql317.1gb.ua',
+        'user' => 'gbua_db_tu_121',
+        'pass' => '9ae296744sg'
+    ],
+    'gbua_db_tu_122' => [
+        'host' => 'mysql317.1gb.ua',
+        'user' => 'gbua_db_tu_122',
+        'pass' => '68348a9889a'
     ]
 ];
