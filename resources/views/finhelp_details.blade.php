@@ -54,10 +54,6 @@
 <div class="card">
     <h2>{{ $title }}</h2>
 
-    <div class="search-box" id="searchBox">
-        <input type="text" id="searchInput" class="search-input" placeholder="Пошук року..." autocomplete="off">
-    </div>
-
     <div class="details-list" id="detailsList" tabindex="0">
         @forelse($records as $index =>$row)
             @php
