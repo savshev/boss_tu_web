@@ -116,8 +116,11 @@
     </div>
 
 
-    <!-- Динамічна кнопка повернення залежно від джерела (підрозділи або категорії) -->
+    <!-- Динамічна кнопка повернення та кнопка пошуку -->
     <div class="action-buttons">
+        <!-- Кнопка виклику пошуку -->
+        <button type="button" class="btn-search-icon" onclick="toggleSearch()" title="Швидкий пошук">🔍</button>
+
         <a href="{{ $backRoute ?? route('working') }}" class="btn-back">
             {{ $backLabel ?? '← Назад до категорій' }}
         </a>
